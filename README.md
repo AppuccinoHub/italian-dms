@@ -4,13 +4,15 @@ Italian DMs is an installable classroom PWA for practicing **essere** and **aver
 
 ## For teachers
 
-- Open the GitHub Pages URL in a browser: https://appuccinohub.github.io/italian-dms/
+- Open the GitHub Pages URL: https://appuccinohub.github.io/italian-dms/
 - On Chromebooks, open the Pages URL directly (phone frame stays centered).
-- On iPhone, open the Pages URL in Safari, tap **Share**, then **Add to Home Screen**.
-- Do **not** open `index.html` as a downloaded HTML file; install and offline need the Pages URL.
+- On iPhone: Safari → Share → Add to Home Screen.
+- Do **not** open `index.html` as a downloaded file; install/offline need the Pages URL.
 
 ## Student features
 
-- Light / dark Messages themes, profile first name + photo (saved on device)
-- Progress, mute, and theme persist in localStorage (per device, not cloud)
-- Conjugation chart, English scaffolds, large taps, mute default ON, ~70% unlock chain
+- Light / dark Messages themes; first name + photo/avatar (saved on this device)
+- Help level: More help / Just right / Challenge me (IEP-friendly scaffolds)
+- Progress, mute, theme, and help level persist in localStorage (per device, not cloud)
+- Authentic Italian teen chat vibe; English stays in the help/gloss layer
+- Conjugation chart, large taps, high contrast, mute default ON, ~60–80% unlock by help level
