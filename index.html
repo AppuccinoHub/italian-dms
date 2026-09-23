@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000" id="metaTheme">
+<meta name="color-scheme" content="dark light">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -18,9 +18,9 @@
 <title>Italian DMs</title>
 <style>
 
-/* PWA standalone: hide browser chrome; keep Messages phone UI */
+/* PWA standalone: full-bleed phone chrome */
 @media all and (display-mode: standalone) {
-  html, body { background: #000; }
+  html, body { background: var(--bg-page); }
   .device {
     width: 100vw;
     height: 100dvh;
@@ -28,8 +28,9 @@
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+    background: var(--bg);
   }
-  .device::before, .device::after { display: none; }
+  .device::before, .device::after, .device .side-btn { display: none; }
   .screen { border-radius: 0; }
 }
 @supports (-webkit-touch-callout: none) {
@@ -37,30 +38,94 @@
     .status-bar { padding-top: max(12px, env(safe-area-inset-top)); }
   }
 }
-:root {
-  --bg-page: #0c0c0e;
+
+:root, [data-theme="dark"] {
+  --bg-page: #0a0a0c;
   --bg: #000000;
-  --bar: rgba(28,28,30,0.92);
+  --bar: rgba(28,28,30,0.82);
   --bar-solid: #1c1c1e;
-  --bubble-them: #1c1c1e;
+  --bubble-them: #262629;
   --bubble-me: #0a84ff;
-  --send: #007AFF;
+  --send: #0a84ff;
   --text: #ffffff;
   --text-dim: #8e8e93;
   --text-soft: #aeaeb2;
-  --separator: rgba(84,84,88,0.65);
+  --separator: rgba(84,84,88,0.55);
+  --row-press: #1c1c1e;
+  --chip-bg: #2c2c2e;
+  --chip-border: #3a3a3c;
+  --field-bg: #1c1c1e;
+  --field-border: #3a3a3c;
+  --sheet-bg: #1c1c1e;
   --green: #30d158;
   --red: #ff453a;
   --orange: #ff9f0a;
-  --chip-bg: #2c2c2e;
+  --status-fg: #ffffff;
+  --home-ind: rgba(255,255,255,0.92);
+  --bezel-metal: #1c1c1e;
+  --bezel-edge: #2c2c2e;
+  --bezel-shadow: rgba(0,0,0,0.72);
+  --me-gloss: #8eb8e8;
+  --toast-bg: rgba(44,44,46,0.96);
+  --wrong-bubble: #8b3a3a;
+  --correct-bubble: #1a7a3a;
+  --form-essere: #64d2ff;
+  --form-avere: #ff9f0a;
   --tap: 48px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --phone-w: 390px;
   --phone-h: 844px;
-  --bezel: 14px;
-  --radius-device: 54px;
-  --radius-screen: 40px;
+  --bezel: 12px;
+  --radius-device: 52px;
+  --radius-screen: 44px;
+  color-scheme: dark;
 }
+
+[data-theme="light"] {
+  --bg-page: #e8e8ed;
+  --bg: #ffffff;
+  --bar: rgba(249,249,249,0.86);
+  --bar-solid: #f9f9f9;
+  --bubble-them: #e9e9eb;
+  --bubble-me: #007AFF;
+  --send: #007AFF;
+  --text: #000000;
+  --text-dim: #8e8e93;
+  --text-soft: #636366;
+  --separator: rgba(60,60,67,0.22);
+  --row-press: #d1d1d6;
+  --chip-bg: #e9e9eb;
+  --chip-border: #d1d1d6;
+  --field-bg: #ffffff;
+  --field-border: #c7c7cc;
+  --sheet-bg: #f2f2f7;
+  --green: #34c759;
+  --red: #ff3b30;
+  --orange: #ff9500;
+  --status-fg: #000000;
+  --home-ind: rgba(0,0,0,0.88);
+  --bezel-metal: #1a1a1c;
+  --bezel-edge: #3a3a3c;
+  --bezel-shadow: rgba(0,0,0,0.35);
+  --me-gloss: #5a8fc7;
+  --toast-bg: rgba(60,60,67,0.92);
+  --wrong-bubble: #c0392b;
+  --correct-bubble: #1e8449;
+  --form-essere: #007AFF;
+  --form-avere: #ff9500;
+  color-scheme: light;
+}
+
+[data-contrast="high"] {
+  --text-dim: var(--text);
+  --separator: var(--text);
+  --bubble-them: #333;
+}
+[data-theme="light"][data-contrast="high"] {
+  --bubble-them: #ccc;
+  --text-dim: #222;
+}
+
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body {
   height: 100%;
@@ -76,42 +141,49 @@ body {
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
+  padding: 16px;
 }
+button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visible, .contact-row:focus-visible {
+  outline: 3px solid var(--send);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 .device {
   position: relative;
-  width: min(var(--phone-w), calc(100vw - 24px));
-  height: min(var(--phone-h), calc(100dvh - 24px));
-  background: #1a1a1c;
+  width: min(var(--phone-w), calc(100vw - 32px));
+  height: min(var(--phone-h), calc(100dvh - 32px));
+  background: linear-gradient(160deg, #2a2a2e 0%, var(--bezel-metal) 40%, #0e0e10 100%);
   border-radius: var(--radius-device);
   padding: var(--bezel);
   box-shadow:
-    0 0 0 1px #2a2a2c,
-    0 0 0 3px #0a0a0a,
-    0 25px 80px rgba(0,0,0,.75),
-    inset 0 0 2px rgba(255,255,255,.08);
+    0 0 0 1px var(--bezel-edge),
+    0 0 0 4px #050505,
+    0 28px 90px var(--bezel-shadow),
+    0 8px 24px rgba(0,0,0,.4),
+    inset 0 1px 1px rgba(255,255,255,.12),
+    inset 0 -1px 1px rgba(0,0,0,.4);
   flex-shrink: 0;
 }
-.device::before {
-  content: "";
+.device .side-btn {
   position: absolute;
-  left: -3px;
-  top: 120px;
-  width: 3px;
-  height: 32px;
   background: #2a2a2c;
-  border-radius: 2px 0 0 2px;
-  box-shadow: 0 50px 0 #2a2a2c, 0 100px 0 #2a2a2c;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 2;
 }
-.device::after {
-  content: "";
-  position: absolute;
-  right: -3px;
-  top: 180px;
-  width: 3px;
-  height: 70px;
-  background: #2a2a2c;
-  border-radius: 0 2px 2px 0;
-}
+.device .side-btn.silent { left: -3px; top: 110px; width: 3px; height: 28px; border-radius: 2px 0 0 2px; }
+.device .side-btn.vol-up { left: -3px; top: 160px; width: 3px; height: 52px; border-radius: 2px 0 0 2px; }
+.device .side-btn.vol-dn { left: -3px; top: 220px; width: 3px; height: 52px; border-radius: 2px 0 0 2px; }
+.device .side-btn.power { right: -3px; top: 190px; width: 3px; height: 78px; border-radius: 0 2px 2px 0; }
+
 .screen {
   position: relative;
   width: 100%;
@@ -121,30 +193,31 @@ body {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
 }
 .dynamic-island {
   position: absolute;
   top: 11px;
   left: 50%;
   transform: translateX(-50%);
-  width: 126px;
-  height: 37px;
+  width: 120px;
+  height: 35px;
   background: #000;
   border-radius: 20px;
   z-index: 100;
   pointer-events: none;
-  box-shadow: inset 0 0 0 1px #111;
+  box-shadow: 0 0 0 1px #111, inset 0 0 6px rgba(0,0,0,.8);
 }
 .dynamic-island .cam {
   position: absolute;
-  right: 18px;
+  right: 16px;
   top: 50%;
   transform: translateY(-50%);
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #1a1a2e;
-  box-shadow: inset 0 0 2px #0a0a15;
+  background: radial-gradient(circle at 35% 35%, #1a2a4a, #0a0a18 70%);
+  box-shadow: inset 0 0 2px #000;
 }
 .status-bar {
   position: relative;
@@ -160,6 +233,7 @@ body {
   flex-shrink: 0;
   background: transparent;
   pointer-events: none;
+  color: var(--status-fg);
 }
 .status-bar .time { width: 54px; }
 .status-icons {
@@ -170,6 +244,9 @@ body {
   justify-content: flex-end;
 }
 .status-icons svg { display: block; }
+.status-icons svg [fill="#fff"], .status-icons svg [stroke="#fff"] { fill: var(--status-fg); }
+.status-icons svg rect[stroke="#fff"] { stroke: var(--status-fg); }
+.status-icons svg path[fill="#fff"] { fill: var(--status-fg); }
 .home-indicator {
   position: absolute;
   bottom: 8px;
@@ -177,9 +254,9 @@ body {
   transform: translateX(-50%);
   width: 134px;
   height: 5px;
-  background: #fff;
+  background: var(--home-ind);
   border-radius: 3px;
-  opacity: .9;
+  opacity: .85;
   z-index: 100;
   pointer-events: none;
 }
@@ -192,7 +269,7 @@ body {
 }
 .view.active { display: flex; }
 #viewSplash {
-  background: #000;
+  background: var(--bg);
   align-items: center;
   justify-content: center;
   z-index: 80;
@@ -240,9 +317,9 @@ body {
   to { opacity: 1; transform: none; }
 }
 .nav-blur {
-  background: rgba(22,22,24,0.85);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: var(--bar);
+  backdrop-filter: saturate(180%) blur(24px);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
   border-bottom: 0.5px solid var(--separator);
   flex-shrink: 0;
 }
@@ -277,7 +354,35 @@ body {
   justify-content: center;
   border-radius: 50%;
 }
-.nav-icon-btn:active { background: rgba(255,255,255,.08); }
+.nav-icon-btn:active { background: rgba(128,128,128,.15); }
+.me-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 20px;
+  min-height: 36px;
+}
+.me-pill:active { opacity: .7; }
+.me-pill .avatar.me-sm {
+  width: 28px;
+  height: 28px;
+  font-size: 11px;
+}
+.me-pill .me-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--send);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .list-title {
   font-size: 34px;
   font-weight: 700;
@@ -298,7 +403,7 @@ body {
   padding: 6px 14px;
   border-radius: 16px;
   border: none;
-  background: #2c2c2e;
+  background: var(--chip-bg);
   color: var(--text);
   font-size: 14px;
   font-weight: 600;
@@ -312,7 +417,7 @@ body {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   background: var(--bg);
-  padding-bottom: 56px;
+  padding-bottom: 72px;
 }
 .contact-row {
   display: flex;
@@ -327,11 +432,11 @@ body {
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+  border-bottom: 0.5px solid var(--separator);
   position: relative;
 }
-.contact-row:active { background: #1c1c1e; }
-.contact-row.locked { opacity: .4; cursor: default; }
+.contact-row:active { background: var(--row-press); }
+.contact-row.locked { opacity: .45; cursor: default; }
 .contact-row.locked:active { background: transparent; }
 .avatar {
   width: 52px;
@@ -344,11 +449,27 @@ body {
   font-size: 18px;
   color: #fff;
   flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+}
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 .avatar.m { background: linear-gradient(145deg, #64d2ff, #007AFF); }
 .avatar.g { background: linear-gradient(145deg, #ff375f, #bf5af2); }
 .avatar.l { background: linear-gradient(145deg, #30d158, #64d2ff); }
 .avatar.grp { background: linear-gradient(145deg, #5856d6, #ff375f); font-size: 13px; letter-spacing: -.02em; }
+.avatar.me { background: linear-gradient(145deg, #5ac8fa, #5856d6); }
+.avatar.c0 { background: linear-gradient(145deg, #64d2ff, #007AFF); }
+.avatar.c1 { background: linear-gradient(145deg, #30d158, #34c759); }
+.avatar.c2 { background: linear-gradient(145deg, #ff9f0a, #ff375f); }
+.avatar.c3 { background: linear-gradient(145deg, #bf5af2, #5856d6); }
+.avatar.c4 { background: linear-gradient(145deg, #ff375f, #ff9f0a); }
+.avatar.c5 { background: linear-gradient(145deg, #64d2ff, #30d158); }
 .contact-meta { flex: 1; min-width: 0; padding-right: 4px; }
 .contact-meta .name-row {
   display: flex;
@@ -382,7 +503,8 @@ body {
   gap: 4px;
 }
 .chev {
-  color: #3a3a3c;
+  color: var(--text-dim);
+  opacity: .45;
   font-size: 18px;
   font-weight: 300;
   flex-shrink: 0;
@@ -394,6 +516,21 @@ body {
   color: var(--green);
   font-weight: 600;
 }
+.empty-hint {
+  padding: 28px 24px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.45;
+}
+.empty-hint strong { color: var(--text); font-weight: 600; }
+.saved-note {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 8px 16px 4px;
+  letter-spacing: -.01em;
+}
 .list-toolbar {
   position: absolute;
   bottom: 0;
@@ -403,9 +540,9 @@ body {
   justify-content: space-around;
   align-items: center;
   padding: 6px 8px 22px;
-  background: rgba(22,22,24,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bar);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-top: 0.5px solid var(--separator);
   z-index: 20;
 }
@@ -437,7 +574,7 @@ body {
   font-size: 12px;
   font-weight: 600;
   color: var(--orange);
-  background: rgba(255,159,10,.12);
+  background: color-mix(in srgb, var(--orange) 14%, transparent);
   padding: 4px 10px;
   border-radius: 12px;
   pointer-events: none;
@@ -510,11 +647,11 @@ body {
   border-radius: 50%;
   padding: 0;
 }
-.face-btn:active { background: rgba(255,255,255,.08); }
+.face-btn:active { background: rgba(128,128,128,.15); }
 .face-btn svg { width: 22px; height: 22px; }
 .timer-bar {
   height: 2px;
-  background: #1c1c1e;
+  background: var(--chip-bg);
   flex-shrink: 0;
 }
 .timer-fill {
@@ -579,8 +716,39 @@ body {
   color: #fff;
   border-bottom-right-radius: 4px;
 }
-.msg.me.wrong .bubble { background: #8b3a3a; }
-.msg.me.correct .bubble { background: #1a7a3a; }
+.msg.me.wrong .bubble { background: var(--wrong-bubble); }
+.msg.me.correct .bubble { background: var(--correct-bubble); }
+.msg-status {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: right;
+  margin: 2px 4px 0 0;
+  letter-spacing: -.01em;
+}
+.typing {
+  align-self: flex-start;
+  display: flex;
+  gap: 5px;
+  padding: 12px 16px;
+  background: var(--bubble-them);
+  border-radius: 18px;
+  border-bottom-left-radius: 4px;
+  margin-bottom: 4px;
+  width: fit-content;
+}
+.typing span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  animation: typingDot 1.2s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay: .15s; }
+.typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes typingDot {
+  0%, 60%, 100% { opacity: .35; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
 .gloss {
   font-size: 12px;
   color: var(--text-dim);
@@ -592,7 +760,7 @@ body {
   margin-left: 0;
   margin-right: 6px;
   text-align: right;
-  color: #8eb8e8;
+  color: var(--me-gloss);
   font-style: normal;
 }
 .blank {
@@ -627,15 +795,15 @@ body {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #333;
+  background: var(--chip-bg);
 }
 .prog span.done { background: var(--green); }
 .prog span.cur { background: var(--send); }
 .composer-wrap {
   flex-shrink: 0;
-  background: rgba(22,22,24,0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bar);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-top: 0.5px solid var(--separator);
   padding: 6px 8px 28px;
 }
@@ -648,7 +816,7 @@ body {
   min-height: 0;
 }
 .cue-hint:empty { display: none; padding: 0; }
-.cue-hint em { color: #fff; font-style: normal; font-weight: 600; }
+.cue-hint em { color: var(--text); font-style: normal; font-weight: 600; }
 .cue-hint .idiom { color: var(--orange); }
 .suggestions {
   display: flex;
@@ -657,9 +825,9 @@ body {
   margin: 0 4px 8px;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
-  background: #2c2c2e;
+  background: var(--chip-bg);
   border-radius: 12px;
-  border: 0.5px solid #3a3a3c;
+  border: 0.5px solid var(--chip-border);
 }
 .suggestions:empty,
 .suggestions[hidden] { display: none; }
@@ -667,10 +835,10 @@ body {
 .chip {
   flex: 1;
   min-width: 0;
-  min-height: 36px;
+  min-height: 44px;
   padding: 8px 10px;
   border: none;
-  border-right: 0.5px solid #3a3a3c;
+  border-right: 0.5px solid var(--chip-border);
   background: transparent;
   color: var(--text);
   font-size: 15px;
@@ -682,9 +850,9 @@ body {
   letter-spacing: -.01em;
 }
 .chip:last-child { border-right: none; }
-.chip:active { background: rgba(255,255,255,.08); }
-.chip.correct-flash { background: rgba(48,209,88,.25); color: var(--green); }
-.chip.wrong-flash { background: rgba(255,69,58,.2); color: var(--red); }
+.chip:active { background: rgba(128,128,128,.15); }
+.chip.correct-flash { background: color-mix(in srgb, var(--green) 25%, transparent); color: var(--green); }
+.chip.wrong-flash { background: color-mix(in srgb, var(--red) 20%, transparent); color: var(--red); }
 .composer-row {
   display: flex;
   align-items: flex-end;
@@ -711,8 +879,8 @@ body {
   flex: 1;
   display: flex;
   align-items: center;
-  background: #1c1c1e;
-  border: 1.5px solid #3a3a3c;
+  background: var(--field-bg);
+  border: 1.5px solid var(--field-border);
   border-radius: 20px;
   min-height: 36px;
   padding: 0 4px 0 14px;
@@ -728,7 +896,7 @@ body {
   padding: 8px 0;
   min-height: 36px;
 }
-.composer-input::placeholder { color: #636366; }
+.composer-input::placeholder { color: var(--text-dim); }
 .composer-input:disabled {
   color: var(--text-dim);
   -webkit-text-fill-color: var(--text-dim);
@@ -747,14 +915,14 @@ body {
   cursor: pointer;
   margin: 3px;
 }
-.send-btn:disabled { background: #3a3a3c; color: #8e8e93; cursor: default; }
+.send-btn:disabled { background: var(--chip-bg); color: var(--text-dim); cursor: default; }
 .send-btn svg { width: 16px; height: 16px; }
 .tiles-area { padding: 4px 4px 8px; }
 .tiles-area[hidden] { display: none; }
 .built-word {
   min-height: 40px;
-  background: #1c1c1e;
-  border: 1.5px dashed #3a3a3c;
+  background: var(--field-bg);
+  border: 1.5px dashed var(--field-border);
   border-radius: 14px;
   display: flex;
   flex-wrap: wrap;
@@ -765,11 +933,11 @@ body {
   font-size: 20px;
   font-weight: 600;
   letter-spacing: .03em;
-  color: #fff;
+  color: var(--text);
 }
 .built-word.empty::before {
   content: attr(data-placeholder);
-  color: #636366;
+  color: var(--text-dim);
   font-weight: 400;
   font-size: 15px;
   letter-spacing: 0;
@@ -786,15 +954,15 @@ body {
   padding: 8px 12px;
   border-radius: 10px;
   border: none;
-  background: #3a3a3c;
-  color: #fff;
+  background: var(--chip-bg);
+  color: var(--text);
   font-size: 18px;
   font-weight: 600;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 1px 0 #1c1c1e;
+  box-shadow: 0 1px 0 var(--separator);
 }
-.tile:active { transform: scale(.94); background: #48484a; }
+.tile:active { transform: scale(.94); }
 .tile.used { opacity: .22; pointer-events: none; }
 .tile-actions {
   display: flex;
@@ -803,7 +971,7 @@ body {
   justify-content: center;
 }
 .tile-actions button {
-  min-height: 40px;
+  min-height: 44px;
   min-width: 100px;
   padding: 8px 20px;
   border-radius: 20px;
@@ -813,14 +981,14 @@ body {
   font-family: inherit;
   cursor: pointer;
 }
-.tile-actions .clear-t { background: #2c2c2e; color: var(--text); }
+.tile-actions .clear-t { background: var(--chip-bg); color: var(--text); }
 .tile-actions .send-t { background: var(--send); color: #fff; }
 .tile-actions button:active { opacity: .7; }
 .modal-overlay {
   display: none;
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.55);
+  background: rgba(0,0,0,.45);
   z-index: 70;
   align-items: flex-end;
   justify-content: center;
@@ -828,13 +996,14 @@ body {
 }
 .modal-overlay.open { display: flex; }
 .sheet {
-  background: #1c1c1e;
+  background: var(--sheet-bg);
   border-radius: 14px 14px 0 0;
   width: 100%;
-  max-height: 82%;
+  max-height: 88%;
   overflow-y: auto;
   padding: 6px 18px 36px;
   animation: sheetUp .32s cubic-bezier(.32,.72,0,1);
+  color: var(--text);
 }
 @keyframes sheetUp {
   from { transform: translateY(100%); }
@@ -843,9 +1012,10 @@ body {
 .sheet-handle {
   width: 36px;
   height: 5px;
-  background: #636366;
+  background: var(--text-dim);
   border-radius: 3px;
   margin: 8px auto 16px;
+  opacity: .5;
 }
 .sheet h2 {
   font-size: 22px;
@@ -876,18 +1046,19 @@ body {
 }
 .chart-table td {
   padding: 10px 6px;
-  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+  border-bottom: 0.5px solid var(--separator);
 }
 .chart-table .form {
   font-weight: 700;
-  color: #64d2ff;
+  color: var(--form-essere);
   font-size: 16px;
 }
+.chart-table.avere .form { color: var(--form-avere); }
 .chart-table .eng { color: var(--text-soft); font-size: 14px; }
 .idiom-list { list-style: none; margin-bottom: 14px; }
 .idiom-list li {
   padding: 10px 0;
-  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+  border-bottom: 0.5px solid var(--separator);
   font-size: 15px;
 }
 .idiom-list strong { color: var(--orange); }
@@ -906,12 +1077,171 @@ body {
   margin-top: 8px;
 }
 .close-sheet:active { opacity: .75; }
+.close-sheet.secondary {
+  background: var(--chip-bg);
+  color: var(--text);
+  margin-top: 10px;
+}
+.close-sheet.danger {
+  background: color-mix(in srgb, var(--red) 18%, transparent);
+  color: var(--red);
+}
+.settings-section {
+  margin-bottom: 20px;
+}
+.settings-section h3 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+.profile-preview {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.profile-preview .avatar {
+  width: 72px;
+  height: 72px;
+  font-size: 26px;
+}
+.profile-preview .hint {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.35;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 0.5px solid var(--separator);
+  min-height: 48px;
+}
+.setting-row label {
+  font-size: 16px;
+  font-weight: 500;
+}
+.setting-row .desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.name-input {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--field-border);
+  background: var(--field-bg);
+  color: var(--text);
+  font-size: 17px;
+  font-family: inherit;
+  padding: 10px 14px;
+  outline: none;
+  margin-bottom: 10px;
+}
+.name-input:focus { border-color: var(--send); }
+.avatar-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+.avatar-opt {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+.avatar-opt.selected { border-color: var(--send); }
+.photo-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.photo-actions button, .photo-actions label.file-btn {
+  flex: 1;
+  min-width: 120px;
+  min-height: 44px;
+  border-radius: 12px;
+  border: none;
+  background: var(--chip-bg);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+}
+.photo-actions input[type="file"] { display: none; }
+.toggle {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: #787880;
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s;
+}
+.toggle.on { background: var(--green); }
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  transition: transform .2s;
+}
+.toggle.on::after { transform: translateX(20px); }
+.theme-toggle-row {
+  display: flex;
+  gap: 8px;
+}
+.theme-btn {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 12px;
+  border: 2px solid var(--separator);
+  background: var(--chip-bg);
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.theme-btn.on {
+  border-color: var(--send);
+  background: color-mix(in srgb, var(--send) 15%, transparent);
+  color: var(--send);
+}
 .toast {
   position: absolute;
   top: 70px;
   left: 50%;
   transform: translateX(-50%) translateY(-12px);
-  background: rgba(44,44,46,0.96);
+  background: var(--toast-bg);
   border: 0.5px solid var(--green);
   color: #fff;
   padding: 12px 18px;
@@ -930,6 +1260,8 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* Narrow phones: nearly full viewport, keep island/status/home */
 @media (max-width: 430px), (max-height: 780px) {
   body { padding: 0; align-items: stretch; justify-content: stretch; }
   .device {
@@ -938,26 +1270,37 @@ body {
     border-radius: 0;
     padding: 0;
     box-shadow: none;
+    background: var(--bg);
   }
-  .device::before, .device::after { display: none; }
+  .device .side-btn { display: none; }
   .screen { border-radius: 0; }
   .dynamic-island { top: max(11px, env(safe-area-inset-top, 0px)); }
   .home-indicator { bottom: max(8px, env(safe-area-inset-bottom, 0px)); }
   .composer-wrap { padding-bottom: max(28px, calc(12px + env(safe-area-inset-bottom, 0px))); }
   .list-toolbar { padding-bottom: max(22px, calc(8px + env(safe-area-inset-bottom, 0px))); }
+  .sheet { padding-bottom: max(36px, calc(20px + env(safe-area-inset-bottom, 0px))); }
 }
+/* Mid-width Chromebooks / tablets: keep phone frame centered */
+@media (min-width: 431px) and (min-height: 781px) {
+  body { padding: 20px; }
+}
+
 </style>
 </head>
 <body>
 <div class="device" id="device">
+  <span class="side-btn silent" aria-hidden="true"></span>
+  <span class="side-btn vol-up" aria-hidden="true"></span>
+  <span class="side-btn vol-dn" aria-hidden="true"></span>
+  <span class="side-btn power" aria-hidden="true"></span>
   <div class="screen" id="phone" role="application" aria-label="Italian DMs">
     <div class="dynamic-island" aria-hidden="true"><span class="cam"></span></div>
     <div class="status-bar" aria-hidden="true">
       <span class="time" id="clock">9:41</span>
-      <div class="status-icons">
-        <svg width="17" height="12" viewBox="0 0 17 12" fill="#fff"><rect x="0" y="7.5" width="3" height="4.5" rx="0.6"/><rect x="4.5" y="5" width="3" height="7" rx="0.6"/><rect x="9" y="2.5" width="3" height="9.5" rx="0.6"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" opacity=".3"/></svg>
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.8c2 0 3.8.8 5.1 2.1l1.2-1.2C12.6 2 10.4 1 8 1S3.4 2 1.7 3.7L2.9 4.9C4.2 3.6 6 2.8 8 2.8zm0 3.2c1.1 0 2.1.4 2.9 1.1l1.2-1.2C11.1 4.9 9.6 4.2 8 4.2S4.9 4.9 3.9 5.9L5.1 7.1C5.9 6.4 6.9 6 8 6zm0 3.2c.55 0 1.05.2 1.4.55L8 11.15 6.6 9.75c.35-.35.85-.55 1.4-.55z"/></svg>
-        <svg width="27" height="12" viewBox="0 0 27 12"><rect x="0.6" y="1" width="22" height="10" rx="2.2" fill="none" stroke="#fff" stroke-width="1.3"/><rect x="2" y="2.5" width="16" height="7" rx="1.2" fill="#30d158"/><path d="M24 4v4a2.2 2.2 0 000-4z" fill="#fff" opacity=".4"/></svg>
+      <div class="status-icons" id="statusIcons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><rect x="0" y="7.5" width="3" height="4.5" rx="0.6"/><rect x="4.5" y="5" width="3" height="7" rx="0.6"/><rect x="9" y="2.5" width="3" height="9.5" rx="0.6"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" opacity=".3"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.8c2 0 3.8.8 5.1 2.1l1.2-1.2C12.6 2 10.4 1 8 1S3.4 2 1.7 3.7L2.9 4.9C4.2 3.6 6 2.8 8 2.8zm0 3.2c1.1 0 2.1.4 2.9 1.1l1.2-1.2C11.1 4.9 9.6 4.2 8 4.2S4.9 4.9 3.9 5.9L5.1 7.1C5.9 6.4 6.9 6 8 6zm0 3.2c.55 0 1.05.2 1.4.55L8 11.15 6.6 9.75c.35-.35.85-.55 1.4-.55z"/></svg>
+        <svg width="27" height="12" viewBox="0 0 27 12"><rect x="0.6" y="1" width="22" height="10" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="2.5" width="16" height="7" rx="1.2" fill="#30d158"/><path d="M24 4v4a2.2 2.2 0 000-4z" fill="currentColor" opacity=".4"/></svg>
       </div>
     </div>
 
@@ -972,29 +1315,37 @@ body {
     <div class="view" id="viewList">
       <div class="nav-blur list-nav">
         <div class="list-nav-top">
-          <button type="button" class="nav-link" id="btnEdit" aria-label="Edit">Edit</button>
-          <button type="button" class="nav-icon-btn" id="btnCompose" aria-label="Compose" title="New message">
-            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 3v16M3 11h16" stroke-linecap="round"/></svg>
+          <button type="button" class="me-pill" id="btnProfile" aria-label="Open profile and settings">
+            <div class="avatar me me-sm" id="listMeAvatar">Me</div>
+            <span class="me-label" id="listMeName">Me</span>
+          </button>
+          <button type="button" class="nav-icon-btn" id="btnSettings" aria-label="Settings" title="Settings">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke-linecap="round"/></svg>
           </button>
         </div>
         <h1 class="list-title">Messages</h1>
         <div class="filters-row" role="tablist">
-          <button type="button" class="filter-pill on" data-f="all">All</button>
-          <button type="button" class="filter-pill" data-f="known">Known Senders</button>
+          <button type="button" class="filter-pill on" data-f="all" role="tab" aria-selected="true">All</button>
+          <button type="button" class="filter-pill" data-f="known" role="tab" aria-selected="false">Known Senders</button>
         </div>
       </div>
       <div class="streak-chip" id="streakChip">0 streak · 0/0</div>
       <div class="contact-list" id="contactList" role="list"></div>
+      <p class="saved-note" id="savedNote">Saved on this device · not cloud</p>
       <div class="list-toolbar">
         <button type="button" class="tool-btn" id="btnChartHome" aria-label="Conjugation chart">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10M7 12h10M7 16h6" stroke-linecap="round"/></svg>
           <span class="label">Chart</span>
         </button>
-        <button type="button" class="tool-btn" id="btnMute" aria-label="Toggle sound">
+        <button type="button" class="tool-btn" id="btnMute" aria-label="Toggle sound" aria-pressed="true">
           <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5L6 9H3v6h3l5 4V5z" stroke-linejoin="round"/><path d="M15 9.5c1.2.8 2 2 2 3.5s-.8 2.7-2 3.5" stroke-linecap="round"/><line x1="4" y1="4" x2="20" y2="20" id="muteSlash" stroke-linecap="round"/></svg>
           <span class="label" id="muteLabel">Muted</span>
         </button>
-        <button type="button" class="tool-btn" id="btnReset" aria-label="Reset progress">
+        <button type="button" class="tool-btn" id="btnThemeQuick" aria-label="Toggle light or dark theme">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke-linecap="round"/></svg>
+          <span class="label" id="themeLabel">Dark</span>
+        </button>
+        <button type="button" class="tool-btn" id="btnReset" aria-label="Reset my progress">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 119-9" stroke-linecap="round"/><path d="M3 4v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <span class="label">Reset</span>
         </button>
@@ -1039,7 +1390,7 @@ body {
           </div>
         </div>
         <div class="composer-row" id="composerRow">
-          <button type="button" class="app-btn" id="btnAppPlus" aria-label="Apps" tabindex="-1">
+          <button type="button" class="app-btn" id="btnAppPlus" aria-label="Open conjugation chart" tabindex="-1">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
           </button>
           <div class="field-wrap">
@@ -1056,9 +1407,9 @@ body {
       <div class="sheet">
         <div class="sheet-handle"></div>
         <h2 id="chartTitle">essere &amp; avere</h2>
-        <p class="sub">Present tense</p>
+        <p class="sub">Present tense · tap Done when ready</p>
         <table class="chart-table" aria-label="essere conjugation">
-          <thead><tr><th colspan="3" style="color:#64d2ff;font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">essere — to be</th></tr>
+          <thead><tr><th colspan="3" style="color:var(--form-essere);font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">essere — to be</th></tr>
           <tr><th>Subject</th><th>Form</th><th>English</th></tr></thead>
           <tbody>
             <tr><td>io</td><td class="form">sono</td><td class="eng">I am</td></tr>
@@ -1069,8 +1420,8 @@ body {
             <tr><td>loro</td><td class="form">sono</td><td class="eng">they are</td></tr>
           </tbody>
         </table>
-        <table class="chart-table" aria-label="avere conjugation">
-          <thead><tr><th colspan="3" style="color:#ff9f0a;font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">avere — to have</th></tr>
+        <table class="chart-table avere" aria-label="avere conjugation">
+          <thead><tr><th colspan="3" style="color:var(--form-avere);font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">avere — to have</th></tr>
           <tr><th>Subject</th><th>Form</th><th>English</th></tr></thead>
           <tbody>
             <tr><td>io</td><td class="form">ho</td><td class="eng">I have</td></tr>
@@ -1081,7 +1432,7 @@ body {
             <tr><td>loro</td><td class="form">hanno</td><td class="eng">they have</td></tr>
           </tbody>
         </table>
-        <p class="sub" style="margin-top:2px;margin-bottom:4px;color:#ff9f0a;font-weight:600">avere idioms (feelings)</p>
+        <p class="sub" style="margin-top:2px;margin-bottom:4px;color:var(--orange);font-weight:600">avere idioms (feelings)</p>
         <ul class="idiom-list">
           <li><strong>avere fame</strong><span>to be hungry (lit. have hunger)</span></li>
           <li><strong>avere sete</strong><span>to be thirsty</span></li>
@@ -1090,6 +1441,73 @@ body {
           <li><strong>avere sonno</strong><span>to be sleepy</span></li>
         </ul>
         <button type="button" class="close-sheet" id="btnCloseChart">Done</button>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <h2 id="settingsTitle">Profile &amp; settings</h2>
+        <p class="sub">First name + photo stay on this device only.</p>
+
+        <div class="settings-section">
+          <h3>Your profile</h3>
+          <div class="profile-preview">
+            <div class="avatar me" id="settingsAvatar">Me</div>
+            <div class="hint">Shown as <strong>Me</strong> in chats. Use a school-safe photo or a color initial.</div>
+          </div>
+          <label class="sub" for="nameInput" style="display:block;margin-bottom:6px">First name only</label>
+          <input class="name-input" id="nameInput" type="text" maxlength="18" placeholder="Your first name" autocomplete="given-name" aria-label="First name">
+          <div class="photo-actions">
+            <label class="file-btn" for="photoInput">Choose photo
+              <input type="file" id="photoInput" accept="image/*" aria-label="Choose profile photo from device">
+            </label>
+            <button type="button" id="btnClearPhoto">Use initial</button>
+          </div>
+          <p class="sub" style="margin-bottom:6px">Or pick a color avatar</p>
+          <div class="avatar-grid" id="avatarGrid" role="listbox" aria-label="Avatar colors"></div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Appearance</h3>
+          <div class="theme-toggle-row" role="group" aria-label="Theme">
+            <button type="button" class="theme-btn" id="btnThemeLight" aria-pressed="false">☀ Light</button>
+            <button type="button" class="theme-btn" id="btnThemeDark" aria-pressed="true">☾ Dark</button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <label for="btnContrast">High contrast</label>
+              <div class="desc">Stronger text for IEP / low vision</div>
+            </div>
+            <button type="button" class="toggle" id="btnContrast" role="switch" aria-checked="false" aria-label="High contrast"></button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Sound &amp; feel</h3>
+          <div class="setting-row">
+            <div>
+              <label for="btnMuteSet">Mute sounds</label>
+              <div class="desc">Default on for classroom calm</div>
+            </div>
+            <button type="button" class="toggle on" id="btnMuteSet" role="switch" aria-checked="true" aria-label="Mute sounds"></button>
+          </div>
+          <div class="setting-row">
+            <div>
+              <label for="btnHaptics">Haptics</label>
+              <div class="desc">Light vibration on answers (if device supports)</div>
+            </div>
+            <button type="button" class="toggle" id="btnHaptics" role="switch" aria-checked="false" aria-label="Haptics"></button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <h3>Progress</h3>
+          <p class="sub" id="settingsSavedNote">Saved on this device only — not a school login or cloud account. Clearing browser data erases progress.</p>
+          <button type="button" class="close-sheet danger" id="btnResetSettings">Reset my progress</button>
+        </div>
+
+        <button type="button" class="close-sheet" id="btnCloseSettings">Done</button>
       </div>
     </div>
 
@@ -1518,7 +1936,44 @@ body {
   ];
 
 
-  const STORAGE_KEY = 'italianDMs_v1';
+  const STORAGE_KEY = 'italianDMs_v2';
+  const STORAGE_LEGACY = 'italianDMs_v1';
+  const AVATAR_COLORS = ['c0','c1','c2','c3','c4','c5'];
+
+  function defaultState() {
+    return {
+      muted: true,
+      theme: 'dark',
+      contrast: false,
+      haptics: false,
+      profileName: '',
+      profilePhoto: null,
+      avatarColor: 'c0',
+      streak: 0,
+      correct: 0,
+      tried: 0,
+      progress: {},
+      splashSeen: false
+    };
+  }
+
+  function loadState() {
+    try {
+      let raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        const legacy = localStorage.getItem(STORAGE_LEGACY);
+        if (legacy) {
+          const old = JSON.parse(legacy);
+          const merged = Object.assign(defaultState(), old);
+          try { localStorage.setItem(STORAGE_KEY, JSON.stringify(merged)); } catch (e) {}
+          return merged;
+        }
+      }
+      if (raw) return Object.assign(defaultState(), JSON.parse(raw));
+    } catch (e) {}
+    return defaultState();
+  }
+
   let state = loadState();
   let muted = state.muted !== false;
   let currentThread = null;
@@ -1528,20 +1983,28 @@ body {
   let built = [];
   let timerId = null;
   let typeModeActive = false;
+  let filterMode = 'all';
 
-  function loadState() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    return { muted: true, streak: 0, correct: 0, tried: 0, progress: {}, splashSeen: false };
-  }
   function saveState() {
     state.muted = muted;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      if (e && (e.name === 'QuotaExceededError' || e.code === 22)) {
+        const photo = state.profilePhoto;
+        state.profilePhoto = null;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          showToast('Photo too large for this device — using initial');
+        } catch (e2) {
+          state.profilePhoto = photo;
+        }
+      }
+    }
   }
+
   function threadStats(id) {
-    return state.progress[id] || { correct: 0, tried: 0, completed: false };
+    return state.progress[id] || { correct: 0, tried: 0, completed: false, nextIndex: 0 };
   }
   function threadPct(id) {
     const s = threadStats(id);
@@ -1573,8 +2036,15 @@ body {
       o.stop(audioCtx.currentTime + dur);
     } catch (e) {}
   }
-  function sfxOk() { beep(660, 0.08); setTimeout(() => beep(880, 0.1), 70); }
-  function sfxBad() { beep(220, 0.15, 'triangle'); }
+  function sfxOk() { beep(660, 0.08); setTimeout(() => beep(880, 0.1), 70); haptic(12); }
+  function sfxBad() { beep(220, 0.15, 'triangle'); haptic([8, 40, 8]); }
+
+  function haptic(pattern) {
+    if (muted || !state.haptics) return;
+    try {
+      if (navigator.vibrate) navigator.vibrate(pattern);
+    } catch (e) {}
+  }
 
   function updateClock() {
     const d = new Date();
@@ -1600,10 +2070,81 @@ body {
     setTimeout(() => t.classList.remove('show'), 2800);
   }
 
+  function displayName() {
+    const n = (state.profileName || '').trim();
+    return n || 'Me';
+  }
+  function displayInitial() {
+    const n = displayName();
+    return (n.charAt(0) || 'M').toUpperCase();
+  }
+
+  function applyAvatarToEl(el) {
+    if (!el) return;
+    el.className = 'avatar me' + (el.classList.contains('me-sm') || el.id === 'listMeAvatar' ? ' me-sm' : '');
+    if (el.id === 'listMeAvatar') el.className = 'avatar me me-sm';
+    if (el.id === 'settingsAvatar') el.className = 'avatar me';
+    el.style.backgroundImage = '';
+    el.innerHTML = '';
+    if (state.profilePhoto) {
+      const img = document.createElement('img');
+      img.src = state.profilePhoto;
+      img.alt = '';
+      el.appendChild(img);
+      el.style.background = 'transparent';
+    } else {
+      el.classList.add(state.avatarColor || 'c0');
+      el.textContent = displayInitial();
+    }
+  }
+
+  function applyTheme() {
+    const theme = state.theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+    const meta = $('metaTheme');
+    if (meta) meta.setAttribute('content', theme === 'light' ? '#f9f9f9' : '#000000');
+    document.documentElement.setAttribute('data-contrast', state.contrast ? 'high' : 'off');
+    $('themeLabel').textContent = theme === 'light' ? 'Light' : 'Dark';
+    $('btnThemeLight').classList.toggle('on', theme === 'light');
+    $('btnThemeDark').classList.toggle('on', theme === 'dark');
+    $('btnThemeLight').setAttribute('aria-pressed', theme === 'light' ? 'true' : 'false');
+    $('btnThemeDark').setAttribute('aria-pressed', theme === 'dark' ? 'true' : 'false');
+    // sun vs moon icon: keep simple
+    const icon = $('themeIcon');
+    if (icon) {
+      if (theme === 'light') {
+        icon.innerHTML = '<circle cx="12" cy="12" r="5"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke-linecap="round"/>';
+      } else {
+        icon.innerHTML = '<path d="M21 14.5A8.5 8.5 0 1110.5 3a7 7 0 0010.5 11.5z" stroke-linejoin="round"/>';
+      }
+    }
+  }
+
+  function updateProfileUI() {
+    applyAvatarToEl($('listMeAvatar'));
+    applyAvatarToEl($('settingsAvatar'));
+    $('listMeName').textContent = displayName();
+    $('nameInput').value = state.profileName || '';
+    $('btnContrast').classList.toggle('on', !!state.contrast);
+    $('btnContrast').setAttribute('aria-checked', state.contrast ? 'true' : 'false');
+    $('btnMuteSet').classList.toggle('on', muted);
+    $('btnMuteSet').setAttribute('aria-checked', muted ? 'true' : 'false');
+    $('btnHaptics').classList.toggle('on', !!state.haptics);
+    $('btnHaptics').setAttribute('aria-checked', state.haptics ? 'true' : 'false');
+    document.querySelectorAll('.avatar-opt').forEach(btn => {
+      btn.classList.toggle('selected', !state.profilePhoto && btn.dataset.color === state.avatarColor);
+    });
+  }
+
   function updateMuteUI() {
     $('muteLabel').textContent = muted ? 'Muted' : 'Sound';
+    $('btnMute').setAttribute('aria-pressed', muted ? 'true' : 'false');
     const slash = $('muteSlash');
     if (slash) slash.style.display = muted ? 'inline' : 'none';
+    if ($('btnMuteSet')) {
+      $('btnMuteSet').classList.toggle('on', muted);
+      $('btnMuteSet').setAttribute('aria-checked', muted ? 'true' : 'false');
+    }
   }
 
   function updateHomeStats() {
@@ -1611,34 +2152,62 @@ body {
     updateMuteUI();
   }
 
+  function unlockHint(th) {
+    const prev = THREADS.find(t => t.id === th.unlockFrom);
+    if (!prev) return 'Locked';
+    return 'Unlock: score ~70% in ' + prev.name;
+  }
+
   function renderContacts() {
     const list = $('contactList');
     list.innerHTML = '';
+    let shown = 0;
     THREADS.forEach((th) => {
       const unlocked = isUnlocked(th);
+      if (filterMode === 'known' && !unlocked) return;
+      shown++;
       const stats = threadStats(th.id);
       const pct = stats.tried ? Math.round(threadPct(th.id) * 100) : null;
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'contact-row' + (unlocked ? '' : ' locked');
       btn.setAttribute('role', 'listitem');
+      btn.setAttribute('aria-label', th.name + (unlocked ? '' : ', locked'));
+      let preview;
+      if (!unlocked) {
+        preview = unlockHint(th);
+      } else if (stats.completed) {
+        preview = 'Done · reopen to practice again';
+      } else if (stats.nextIndex > 0) {
+        preview = 'Continue · ' + stats.nextIndex + '/' + th.items.length;
+      } else {
+        preview = th.preview;
+      }
       btn.innerHTML =
         '<div class="avatar ' + th.avatarClass + '">' + th.initials + '</div>' +
         '<div class="contact-meta">' +
           '<div class="name-row">' +
-            '<span class="name">' + th.name + (unlocked ? '' : ' <span class="lock-badge">🔒</span>') + '</span>' +
+            '<span class="name">' + th.name + (unlocked ? '' : ' <span class="lock-badge" aria-hidden="true">🔒</span>') + '</span>' +
             '<span class="time">' + (unlocked ? th.time : '') + '</span>' +
           '</div>' +
           '<div class="preview">' +
-            (unlocked ? th.preview : 'Score 70% on previous chat to unlock') +
+            preview +
             (pct !== null && unlocked ? ' <span class="pct-dot">· ' + pct + '%</span>' : '') +
           '</div>' +
         '</div>' +
-        '<span class="chev">›</span>';
+        '<span class="chev" aria-hidden="true">›</span>';
       if (unlocked) btn.addEventListener('click', () => openThread(th.id));
+      else btn.addEventListener('click', () => showToast(unlockHint(th)));
       list.appendChild(btn);
     });
+    if (shown === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-hint';
+      empty.innerHTML = '<strong>No chats in this filter.</strong><br>Switch to All to see locked threads.';
+      list.appendChild(empty);
+    }
     updateHomeStats();
+    updateProfileUI();
   }
 
   function showView(id) {
@@ -1666,7 +2235,19 @@ body {
     const th = THREADS.find(t => t.id === id);
     if (!th || !isUnlocked(th)) return;
     currentThread = th;
-    itemIndex = 0;
+    const st = threadStats(th.id);
+    // Resume if partial; replay from start if completed (keep completed so unlocks stay)
+    if (st.completed) {
+      itemIndex = 0;
+      st.nextIndex = 0;
+      st.correct = 0;
+      st.tried = 0;
+      // st.completed stays true so later chats remain unlocked
+      state.progress[th.id] = st;
+      saveState();
+    } else {
+      itemIndex = Math.min(st.nextIndex || 0, th.items.length);
+    }
     awaitingAnswer = false;
     clearTimer();
 
@@ -1685,6 +2266,10 @@ body {
     sys.className = 'sys';
     sys.textContent = modeHint(th.mode);
     messagesEl.appendChild(sys);
+
+    if (itemIndex > 0 && itemIndex < th.items.length) {
+      addSys('Picking up where you left off (' + itemIndex + '/' + th.items.length + ')…', 'ok');
+    }
 
     renderProg();
     showView('viewThread');
@@ -1752,6 +2337,12 @@ body {
       g.textContent = opts.gloss;
       wrap.appendChild(g);
     }
+    if (side === 'me' && opts.ticks) {
+      const st = document.createElement('div');
+      st.className = 'msg-status';
+      st.textContent = opts.ticks;
+      wrap.appendChild(st);
+    }
     messagesEl.appendChild(wrap);
     messagesEl.scrollTop = messagesEl.scrollHeight;
     return wrap;
@@ -1763,6 +2354,16 @@ body {
     d.textContent = text;
     messagesEl.appendChild(d);
     messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function showTyping() {
+    const el = document.createElement('div');
+    el.className = 'typing';
+    el.setAttribute('aria-label', 'Typing');
+    el.innerHTML = '<span></span><span></span><span></span>';
+    messagesEl.appendChild(el);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return el;
   }
 
   function formatThemText(item) {
@@ -1783,7 +2384,9 @@ body {
     }
     const item = currentThread.items[itemIndex];
     renderProg();
+    const typing = showTyping();
     setTimeout(() => {
+      if (typing.parentNode) typing.parentNode.removeChild(typing);
       addBubble('them', formatThemText(item), {
         gloss: item.them.gloss || null,
         from: item.them.from || null
@@ -1794,7 +2397,7 @@ body {
       awaitingAnswer = true;
       presentInput(item);
       if (currentThread.timed) startTimer(currentThread.timePerItem || 28000);
-    }, 350);
+    }, 550);
   }
 
   function presentInput(item) {
@@ -1838,6 +2441,7 @@ body {
       b.type = 'button';
       b.className = 'chip';
       b.textContent = form;
+      b.setAttribute('aria-label', 'Send ' + form);
       b.addEventListener('click', () => {
         if (!awaitingAnswer) return;
         handleAnswer(form, b);
@@ -1873,6 +2477,7 @@ body {
       b.type = 'button';
       b.className = 'tile' + (used ? ' used' : '');
       b.textContent = ch;
+      b.setAttribute('aria-label', 'Letter ' + ch);
       b.addEventListener('click', () => {
         if (used || !awaitingAnswer) return;
         if (!built._used) built._used = {};
@@ -1932,30 +2537,37 @@ body {
       sfxOk();
       if (chipEl) chipEl.classList.add('correct-flash');
       const replyText = item.reply.replace('{FORM}', item.answer);
-      addBubble('me', replyText, { gloss: item.replyGloss || null, cls: 'correct' });
+      addBubble('me', replyText, { gloss: item.replyGloss || null, cls: 'correct', ticks: 'Delivered' });
+      setTimeout(() => {
+        const statuses = messagesEl.querySelectorAll('.msg.me .msg-status');
+        const last = statuses[statuses.length - 1];
+        if (last && last.textContent === 'Delivered') last.textContent = 'Seen';
+      }, 900);
       addSys('Nice — ' + item.subject + ' → ' + item.answer, 'ok');
     } else {
       state.streak = 0;
       sfxBad();
       if (chipEl) chipEl.classList.add('wrong-flash');
       const wrongShow = guess || '…';
-      addBubble('me', wrongShow, { cls: 'wrong' });
+      addBubble('me', wrongShow, { cls: 'wrong', ticks: 'Delivered' });
       const tease = gentleTease(item, wrongShow);
       setTimeout(() => {
         addBubble('them', tease.text, { from: tease.from, gloss: tease.gloss });
         addSys('Right form: ' + item.answer + ' (' + item.subject + ' + ' + item.verb + ')', 'tip');
         setTimeout(() => {
           const replyText = item.reply.replace('{FORM}', item.answer);
-          addBubble('me', replyText, { gloss: item.replyGloss || null });
+          addBubble('me', replyText, { gloss: item.replyGloss || null, ticks: 'Seen' });
           afterItem();
         }, 700);
       }, 400);
+      st.nextIndex = itemIndex + 1;
       state.progress[currentThread.id] = st;
       saveState();
       updateHomeStats();
       return;
     }
 
+    st.nextIndex = itemIndex + 1;
     state.progress[currentThread.id] = st;
     saveState();
     updateHomeStats();
@@ -1977,6 +2589,10 @@ body {
   function afterItem() {
     itemIndex++;
     renderProg();
+    const st = threadStats(currentThread.id);
+    st.nextIndex = itemIndex;
+    state.progress[currentThread.id] = st;
+    saveState();
     if (itemIndex >= currentThread.items.length) {
       setTimeout(finishThread, 500);
     } else {
@@ -1989,7 +2605,8 @@ body {
     hideAllInput();
     const st = threadStats(currentThread.id);
     const pct = st.tried ? Math.round((st.correct / st.tried) * 100) : 0;
-    st.completed = pct >= 70;
+    if (pct >= 70) st.completed = true;
+    st.nextIndex = currentThread.items.length;
     state.progress[currentThread.id] = st;
     saveState();
 
@@ -2036,6 +2653,91 @@ body {
     }
   }
 
+  function resizeImageToDataURL(file, maxSize, cb) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      const img = new Image();
+      img.onload = function () {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, maxSize / Math.max(w, h));
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        let quality = 0.85;
+        let data = canvas.toDataURL('image/jpeg', quality);
+        while (data.length > 180000 && quality > 0.4) {
+          quality -= 0.1;
+          data = canvas.toDataURL('image/jpeg', quality);
+        }
+        cb(data);
+      };
+      img.onerror = function () { showToast('Could not read that image'); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { showToast('Could not read that image'); };
+    reader.readAsDataURL(file);
+  }
+
+  function openSettings() {
+    updateProfileUI();
+    applyTheme();
+    $('settingsModal').classList.add('open');
+    setTimeout(() => $('nameInput').focus(), 200);
+  }
+  function closeSettings() {
+    const name = ($('nameInput').value || '').trim().split(/\s+/)[0] || '';
+    state.profileName = name.slice(0, 18);
+    saveState();
+    updateProfileUI();
+    $('settingsModal').classList.remove('open');
+  }
+
+  function buildAvatarGrid() {
+    const grid = $('avatarGrid');
+    grid.innerHTML = '';
+    AVATAR_COLORS.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'avatar-opt avatar ' + c;
+      b.dataset.color = c;
+      b.textContent = displayInitial();
+      b.setAttribute('role', 'option');
+      b.setAttribute('aria-label', 'Color avatar ' + c);
+      b.addEventListener('click', () => {
+        state.avatarColor = c;
+        state.profilePhoto = null;
+        saveState();
+        updateProfileUI();
+        buildAvatarGrid();
+      });
+      grid.appendChild(b);
+    });
+    updateProfileUI();
+  }
+
+  function doReset() {
+    if (!confirm('Reset my progress? This clears chat scores and streak on this device. Profile and theme stay.')) return;
+    const keep = {
+      muted: muted,
+      theme: state.theme,
+      contrast: state.contrast,
+      haptics: state.haptics,
+      profileName: state.profileName,
+      profilePhoto: state.profilePhoto,
+      avatarColor: state.avatarColor,
+      splashSeen: true
+    };
+    state = Object.assign(defaultState(), keep, { streak: 0, correct: 0, tried: 0, progress: {} });
+    saveState();
+    renderContacts();
+    showToast('Progress reset');
+    closeSettings();
+  }
+
   $('btnBack').addEventListener('click', () => {
     clearTimer();
     awaitingAnswer = false;
@@ -2059,29 +2761,99 @@ body {
     updateHomeStats();
     if (!muted) sfxOk();
   });
-
-  $('btnReset').addEventListener('click', () => {
-    if (!confirm('Reset all progress and streak?')) return;
-    state = { muted: muted, streak: 0, correct: 0, tried: 0, progress: {}, splashSeen: true };
+  $('btnMuteSet').addEventListener('click', () => {
+    muted = !muted;
     saveState();
-    renderContacts();
-    showToast('Progress reset');
+    updateHomeStats();
+    updateProfileUI();
+    if (!muted) sfxOk();
+  });
+  $('btnHaptics').addEventListener('click', () => {
+    state.haptics = !state.haptics;
+    saveState();
+    updateProfileUI();
+    if (state.haptics) haptic(15);
+  });
+  $('btnContrast').addEventListener('click', () => {
+    state.contrast = !state.contrast;
+    saveState();
+    applyTheme();
+    updateProfileUI();
   });
 
-  $('btnEdit').addEventListener('click', () => showToast('Edit mode — pick a chat to practice'));
-  $('btnCompose').addEventListener('click', () => showToast('New message — open a chat below'));
-  $('btnFaceAudio').addEventListener('click', () => {});
-  $('btnFaceVideo').addEventListener('click', () => {});
+  $('btnThemeLight').addEventListener('click', () => {
+    state.theme = 'light';
+    saveState();
+    applyTheme();
+  });
+  $('btnThemeDark').addEventListener('click', () => {
+    state.theme = 'dark';
+    saveState();
+    applyTheme();
+  });
+  $('btnThemeQuick').addEventListener('click', () => {
+    state.theme = state.theme === 'light' ? 'dark' : 'light';
+    saveState();
+    applyTheme();
+  });
+
+  $('btnReset').addEventListener('click', doReset);
+  $('btnResetSettings').addEventListener('click', doReset);
+
+  $('btnProfile').addEventListener('click', openSettings);
+  $('btnSettings').addEventListener('click', openSettings);
+  $('btnCloseSettings').addEventListener('click', closeSettings);
+  $('settingsModal').addEventListener('click', (e) => {
+    if (e.target === $('settingsModal')) closeSettings();
+  });
+  $('nameInput').addEventListener('change', () => {
+    state.profileName = ($('nameInput').value || '').trim().split(/\s+/)[0].slice(0, 18);
+    saveState();
+    updateProfileUI();
+    buildAvatarGrid();
+  });
+  $('photoInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) {
+      showToast('Please choose an image file');
+      return;
+    }
+    resizeImageToDataURL(file, 256, (dataUrl) => {
+      state.profilePhoto = dataUrl;
+      saveState();
+      updateProfileUI();
+      showToast('Photo saved on this device');
+    });
+    e.target.value = '';
+  });
+  $('btnClearPhoto').addEventListener('click', () => {
+    state.profilePhoto = null;
+    saveState();
+    updateProfileUI();
+    buildAvatarGrid();
+  });
+
+  $('btnFaceAudio').addEventListener('click', () => showToast('Practice mode — no calls'));
+  $('btnFaceVideo').addEventListener('click', () => showToast('Practice mode — no FaceTime'));
   $('btnAppPlus').addEventListener('click', () => openChart());
 
   document.querySelectorAll('.filter-pill').forEach(p => {
     p.addEventListener('click', () => {
-      document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('on'));
+      document.querySelectorAll('.filter-pill').forEach(x => {
+        x.classList.remove('on');
+        x.setAttribute('aria-selected', 'false');
+      });
       p.classList.add('on');
+      p.setAttribute('aria-selected', 'true');
+      filterMode = p.getAttribute('data-f') || 'all';
+      renderContacts();
     });
   });
 
   muted = state.muted !== false;
+  applyTheme();
+  buildAvatarGrid();
   renderContacts();
 
   if (state.splashSeen) {
