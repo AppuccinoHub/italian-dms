@@ -16,3 +16,15 @@ Italian DMs is an installable classroom PWA for practicing **essere** and **aver
 - Progress, mute, theme, and help level persist in localStorage (per device, not cloud)
 - Authentic Italian teen chat vibe; English stays in the help/gloss layer
 - Conjugation chart, large taps, high contrast, mute default ON, ~60–80% unlock by help level
+
+## Link preview
+
+Sharing the Pages URL shows an iMessage-style social card (`og.png`). Absolute image URL: `https://appuccinohub.github.io/italian-dms/og.png`.
+
+## Class Mode (separate app)
+
+Peer / graded pair practice lives in a **separate** repo and URL — not this solo app:
+
+- https://appuccinohub.github.io/italian-dms-class/
+- Teacher: https://appuccinohub.github.io/italian-dms-class/teacher.html
+
