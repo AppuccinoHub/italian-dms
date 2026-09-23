@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Italian DMs">
+<meta name="application-name" content="Italian DMs">
+<meta name="description" content="Italian Level 2: practice essere and avere in fake iMessage DMs. Offline classroom app.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icons/icon-512.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Italian DMs</title>
+<style>
+
+/* PWA standalone: hide browser chrome; keep Messages phone UI */
+@media all and (display-mode: standalone) {
+  html, body { background: #000; }
+  .device {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .device::before, .device::after { display: none; }
+  .screen { border-radius: 0; }
+}
+@supports (-webkit-touch-callout: none) {
+  @media all and (display-mode: standalone) {
+    .status-bar { padding-top: max(12px, env(safe-area-inset-top)); }
+  }
+}
+:root {
+  --bg-page: #0c0c0e;
+  --bg: #000000;
+  --bar: rgba(28,28,30,0.92);
+  --bar-solid: #1c1c1e;
+  --bubble-them: #1c1c1e;
+  --bubble-me: #0a84ff;
+  --send: #007AFF;
+  --text: #ffffff;
+  --text-dim: #8e8e93;
+  --text-soft: #aeaeb2;
+  --separator: rgba(84,84,88,0.65);
+  --green: #30d158;
+  --red: #ff453a;
+  --orange: #ff9f0a;
+  --chip-bg: #2c2c2e;
+  --tap: 48px;
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --phone-w: 390px;
+  --phone-h: 844px;
+  --bezel: 14px;
+  --radius-device: 54px;
+  --radius-screen: 40px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  height: 100%;
+  background: var(--bg-page);
+  font-family: var(--font);
+  color: var(--text);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+}
+.device {
+  position: relative;
+  width: min(var(--phone-w), calc(100vw - 24px));
+  height: min(var(--phone-h), calc(100dvh - 24px));
+  background: #1a1a1c;
+  border-radius: var(--radius-device);
+  padding: var(--bezel);
+  box-shadow:
+    0 0 0 1px #2a2a2c,
+    0 0 0 3px #0a0a0a,
+    0 25px 80px rgba(0,0,0,.75),
+    inset 0 0 2px rgba(255,255,255,.08);
+  flex-shrink: 0;
+}
+.device::before {
+  content: "";
+  position: absolute;
+  left: -3px;
+  top: 120px;
+  width: 3px;
+  height: 32px;
+  background: #2a2a2c;
+  border-radius: 2px 0 0 2px;
+  box-shadow: 0 50px 0 #2a2a2c, 0 100px 0 #2a2a2c;
+}
+.device::after {
+  content: "";
+  position: absolute;
+  right: -3px;
+  top: 180px;
+  width: 3px;
+  height: 70px;
+  background: #2a2a2c;
+  border-radius: 0 2px 2px 0;
+}
+.screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg);
+  border-radius: var(--radius-screen);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.dynamic-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 37px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px #111;
+}
+.dynamic-island .cam {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  box-shadow: inset 0 0 2px #0a0a15;
+}
+.status-bar {
+  position: relative;
+  z-index: 90;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 28px 0;
+  height: 54px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  flex-shrink: 0;
+  background: transparent;
+  pointer-events: none;
+}
+.status-bar .time { width: 54px; }
+.status-icons {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  width: 76px;
+  justify-content: flex-end;
+}
+.status-icons svg { display: block; }
+.home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: #fff;
+  border-radius: 3px;
+  opacity: .9;
+  z-index: 100;
+  pointer-events: none;
+}
+.view {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.view.active { display: flex; }
+#viewSplash {
+  background: #000;
+  align-items: center;
+  justify-content: center;
+  z-index: 80;
+  position: absolute;
+  inset: 0;
+  transition: opacity .45s ease, transform .55s cubic-bezier(.32,.72,0,1);
+}
+#viewSplash.leaving {
+  opacity: 0;
+  transform: scale(1.06);
+  pointer-events: none;
+}
+#viewSplash.gone { display: none !important; }
+.splash-icon {
+  width: 88px;
+  height: 88px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #5ac8fa 0%, #007AFF 45%, #5856d6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0,122,255,.35);
+  margin-bottom: 18px;
+  animation: iconPop .6s cubic-bezier(.34,1.56,.64,1);
+}
+.splash-icon svg { width: 48px; height: 48px; }
+@keyframes iconPop {
+  from { transform: scale(.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.splash-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  animation: fadeUp .5s .15s both;
+}
+.splash-sub {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  animation: fadeUp .5s .25s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.nav-blur {
+  background: rgba(22,22,24,0.85);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 0.5px solid var(--separator);
+  flex-shrink: 0;
+}
+.list-nav { padding: 4px 16px 10px; }
+.list-nav-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 36px;
+}
+.nav-link {
+  background: none;
+  border: none;
+  color: var(--send);
+  font-size: 17px;
+  font-family: inherit;
+  font-weight: 400;
+  cursor: pointer;
+  padding: 6px 4px;
+  min-height: 36px;
+}
+.nav-link:active { opacity: .5; }
+.nav-icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  color: var(--send);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.nav-icon-btn:active { background: rgba(255,255,255,.08); }
+.list-title {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -.04em;
+  padding: 2px 4px 8px;
+  line-height: 1.1;
+}
+.filters-row {
+  display: flex;
+  gap: 8px;
+  padding: 0 4px 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.filters-row::-webkit-scrollbar { display: none; }
+.filter-pill {
+  flex-shrink: 0;
+  padding: 6px 14px;
+  border-radius: 16px;
+  border: none;
+  background: #2c2c2e;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.filter-pill.on { background: var(--send); color: #fff; }
+.filter-pill:active { opacity: .75; }
+.contact-list {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background: var(--bg);
+  padding-bottom: 56px;
+}
+.contact-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  min-height: 74px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+  position: relative;
+}
+.contact-row:active { background: #1c1c1e; }
+.contact-row.locked { opacity: .4; cursor: default; }
+.contact-row.locked:active { background: transparent; }
+.avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+  color: #fff;
+  flex-shrink: 0;
+}
+.avatar.m { background: linear-gradient(145deg, #64d2ff, #007AFF); }
+.avatar.g { background: linear-gradient(145deg, #ff375f, #bf5af2); }
+.avatar.l { background: linear-gradient(145deg, #30d158, #64d2ff); }
+.avatar.grp { background: linear-gradient(145deg, #5856d6, #ff375f); font-size: 13px; letter-spacing: -.02em; }
+.contact-meta { flex: 1; min-width: 0; padding-right: 4px; }
+.contact-meta .name-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+.contact-meta .name {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.contact-meta .time {
+  font-size: 15px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  font-weight: 400;
+}
+.contact-meta .preview {
+  font-size: 15px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.chev {
+  color: #3a3a3c;
+  font-size: 18px;
+  font-weight: 300;
+  flex-shrink: 0;
+  margin-left: -4px;
+}
+.lock-badge { font-size: 12px; }
+.pct-dot {
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 600;
+}
+.list-toolbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 8px 22px;
+  background: rgba(22,22,24,0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--separator);
+  z-index: 20;
+}
+.tool-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: var(--send);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px;
+  min-height: 44px;
+  justify-content: center;
+}
+.tool-btn svg { width: 24px; height: 24px; }
+.tool-btn:active { opacity: .45; }
+.tool-btn .label { color: var(--text-dim); }
+.streak-chip {
+  position: absolute;
+  top: 58px;
+  right: 16px;
+  z-index: 15;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--orange);
+  background: rgba(255,159,10,.12);
+  padding: 4px 10px;
+  border-radius: 12px;
+  pointer-events: none;
+}
+.thread-nav {
+  display: flex;
+  align-items: center;
+  padding: 0 4px 8px;
+  gap: 2px;
+  min-height: 52px;
+}
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: var(--send);
+  font-size: 17px;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 8px 6px 8px 4px;
+  min-height: 44px;
+  min-width: 72px;
+  font-weight: 400;
+}
+.back-btn:active { opacity: .5; }
+.back-btn .chevron {
+  font-size: 28px;
+  font-weight: 300;
+  line-height: 1;
+  margin-top: -2px;
+}
+.thread-person {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  margin-left: -40px;
+}
+.thread-person .avatar { width: 40px; height: 40px; font-size: 14px; }
+.thread-person .tname {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.thread-actions {
+  display: flex;
+  gap: 2px;
+  min-width: 72px;
+  justify-content: flex-end;
+  padding-right: 6px;
+}
+.face-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  color: var(--send);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  padding: 0;
+}
+.face-btn:active { background: rgba(255,255,255,.08); }
+.face-btn svg { width: 22px; height: 22px; }
+.timer-bar {
+  height: 2px;
+  background: #1c1c1e;
+  flex-shrink: 0;
+}
+.timer-fill {
+  height: 100%;
+  background: var(--send);
+  width: 100%;
+}
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+.day-label {
+  align-self: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin: 10px 0 14px;
+  letter-spacing: -.01em;
+}
+.msg {
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  animation: bubbleIn .28s cubic-bezier(.2,.8,.2,1);
+  margin-bottom: 2px;
+}
+@keyframes bubbleIn {
+  from { opacity: 0; transform: translateY(10px) scale(.94); }
+  to { opacity: 1; transform: none; }
+}
+.msg.them { align-self: flex-start; }
+.msg.me { align-self: flex-end; }
+.msg .sender {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin: 4px 0 2px 14px;
+  font-weight: 500;
+}
+.bubble {
+  padding: 8px 14px;
+  border-radius: 18px;
+  font-size: 17px;
+  line-height: 1.3;
+  letter-spacing: -.01em;
+  word-wrap: break-word;
+  position: relative;
+}
+.msg.them .bubble {
+  background: var(--bubble-them);
+  color: var(--text);
+  border-bottom-left-radius: 4px;
+}
+.msg.me .bubble {
+  background: var(--bubble-me);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.msg.me.wrong .bubble { background: #8b3a3a; }
+.msg.me.correct .bubble { background: #1a7a3a; }
+.gloss {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 3px 0 0 14px;
+  font-style: italic;
+  line-height: 1.3;
+}
+.msg.me .gloss {
+  margin-left: 0;
+  margin-right: 6px;
+  text-align: right;
+  color: #8eb8e8;
+  font-style: normal;
+}
+.blank {
+  display: inline-block;
+  min-width: 48px;
+  border-bottom: 2px solid var(--send);
+  color: var(--send);
+  font-weight: 700;
+  padding: 0 2px;
+  text-align: center;
+}
+.sys {
+  align-self: center;
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 8px 20px;
+  max-width: 92%;
+  line-height: 1.35;
+  font-weight: 500;
+}
+.sys.tip { color: var(--orange); }
+.sys.ok { color: var(--green); }
+.prog {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  padding: 0 0 6px;
+  flex-shrink: 0;
+}
+.prog span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #333;
+}
+.prog span.done { background: var(--green); }
+.prog span.cur { background: var(--send); }
+.composer-wrap {
+  flex-shrink: 0;
+  background: rgba(22,22,24,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 0.5px solid var(--separator);
+  padding: 6px 8px 28px;
+}
+.cue-hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 2px 10px 6px;
+  line-height: 1.3;
+  text-align: center;
+  min-height: 0;
+}
+.cue-hint:empty { display: none; padding: 0; }
+.cue-hint em { color: #fff; font-style: normal; font-weight: 600; }
+.cue-hint .idiom { color: var(--orange); }
+.suggestions {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  margin: 0 4px 8px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: #2c2c2e;
+  border-radius: 12px;
+  border: 0.5px solid #3a3a3c;
+}
+.suggestions:empty,
+.suggestions[hidden] { display: none; }
+.suggestions::-webkit-scrollbar { display: none; }
+.chip {
+  flex: 1;
+  min-width: 0;
+  min-height: 36px;
+  padding: 8px 10px;
+  border: none;
+  border-right: 0.5px solid #3a3a3c;
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  text-align: center;
+  letter-spacing: -.01em;
+}
+.chip:last-child { border-right: none; }
+.chip:active { background: rgba(255,255,255,.08); }
+.chip.correct-flash { background: rgba(48,209,88,.25); color: var(--green); }
+.chip.wrong-flash { background: rgba(255,69,58,.2); color: var(--red); }
+.composer-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 2px;
+}
+.app-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--send);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-bottom: 2px;
+}
+.app-btn:active { opacity: .7; }
+.app-btn svg { width: 18px; height: 18px; }
+.field-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #1c1c1e;
+  border: 1.5px solid #3a3a3c;
+  border-radius: 20px;
+  min-height: 36px;
+  padding: 0 4px 0 14px;
+}
+.composer-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 17px;
+  font-family: inherit;
+  outline: none;
+  padding: 8px 0;
+  min-height: 36px;
+}
+.composer-input::placeholder { color: #636366; }
+.composer-input:disabled {
+  color: var(--text-dim);
+  -webkit-text-fill-color: var(--text-dim);
+}
+.send-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: var(--send);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin: 3px;
+}
+.send-btn:disabled { background: #3a3a3c; color: #8e8e93; cursor: default; }
+.send-btn svg { width: 16px; height: 16px; }
+.tiles-area { padding: 4px 4px 8px; }
+.tiles-area[hidden] { display: none; }
+.built-word {
+  min-height: 40px;
+  background: #1c1c1e;
+  border: 1.5px dashed #3a3a3c;
+  border-radius: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: .03em;
+  color: #fff;
+}
+.built-word.empty::before {
+  content: attr(data-placeholder);
+  color: #636366;
+  font-weight: 400;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+.tile-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.tile {
+  min-width: 40px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: none;
+  background: #3a3a3c;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 1px 0 #1c1c1e;
+}
+.tile:active { transform: scale(.94); background: #48484a; }
+.tile.used { opacity: .22; pointer-events: none; }
+.tile-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+.tile-actions button {
+  min-height: 40px;
+  min-width: 100px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.tile-actions .clear-t { background: #2c2c2e; color: var(--text); }
+.tile-actions .send-t { background: var(--send); color: #fff; }
+.tile-actions button:active { opacity: .7; }
+.modal-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  z-index: 70;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: var(--radius-screen);
+}
+.modal-overlay.open { display: flex; }
+.sheet {
+  background: #1c1c1e;
+  border-radius: 14px 14px 0 0;
+  width: 100%;
+  max-height: 82%;
+  overflow-y: auto;
+  padding: 6px 18px 36px;
+  animation: sheetUp .32s cubic-bezier(.32,.72,0,1);
+}
+@keyframes sheetUp {
+  from { transform: translateY(100%); }
+  to { transform: none; }
+}
+.sheet-handle {
+  width: 36px;
+  height: 5px;
+  background: #636366;
+  border-radius: 3px;
+  margin: 8px auto 16px;
+}
+.sheet h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  margin-bottom: 2px;
+}
+.sheet .sub {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+.chart-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 18px;
+  font-size: 15px;
+}
+.chart-table th {
+  text-align: left;
+  padding: 8px 6px;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  border-bottom: 0.5px solid var(--separator);
+}
+.chart-table td {
+  padding: 10px 6px;
+  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+}
+.chart-table .form {
+  font-weight: 700;
+  color: #64d2ff;
+  font-size: 16px;
+}
+.chart-table .eng { color: var(--text-soft); font-size: 14px; }
+.idiom-list { list-style: none; margin-bottom: 14px; }
+.idiom-list li {
+  padding: 10px 0;
+  border-bottom: 0.5px solid rgba(84,84,88,0.35);
+  font-size: 15px;
+}
+.idiom-list strong { color: var(--orange); }
+.idiom-list span { color: var(--text-dim); font-size: 13px; display: block; margin-top: 2px; }
+.close-sheet {
+  width: 100%;
+  min-height: 50px;
+  border-radius: 14px;
+  border: none;
+  background: var(--send);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.close-sheet:active { opacity: .75; }
+.toast {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-12px);
+  background: rgba(44,44,46,0.96);
+  border: 0.5px solid var(--green);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 85;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .3s, transform .3s;
+  text-align: center;
+  max-width: 80%;
+  box-shadow: 0 8px 28px rgba(0,0,0,.45);
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+@media (max-width: 430px), (max-height: 780px) {
+  body { padding: 0; align-items: stretch; justify-content: stretch; }
+  .device {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+  .device::before, .device::after { display: none; }
+  .screen { border-radius: 0; }
+  .dynamic-island { top: max(11px, env(safe-area-inset-top, 0px)); }
+  .home-indicator { bottom: max(8px, env(safe-area-inset-bottom, 0px)); }
+  .composer-wrap { padding-bottom: max(28px, calc(12px + env(safe-area-inset-bottom, 0px))); }
+  .list-toolbar { padding-bottom: max(22px, calc(8px + env(safe-area-inset-bottom, 0px))); }
+}
+</style>
+</head>
+<body>
+<div class="device" id="device">
+  <div class="screen" id="phone" role="application" aria-label="Italian DMs">
+    <div class="dynamic-island" aria-hidden="true"><span class="cam"></span></div>
+    <div class="status-bar" aria-hidden="true">
+      <span class="time" id="clock">9:41</span>
+      <div class="status-icons">
+        <svg width="17" height="12" viewBox="0 0 17 12" fill="#fff"><rect x="0" y="7.5" width="3" height="4.5" rx="0.6"/><rect x="4.5" y="5" width="3" height="7" rx="0.6"/><rect x="9" y="2.5" width="3" height="9.5" rx="0.6"/><rect x="13.5" y="0" width="3" height="12" rx="0.6" opacity=".3"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.8c2 0 3.8.8 5.1 2.1l1.2-1.2C12.6 2 10.4 1 8 1S3.4 2 1.7 3.7L2.9 4.9C4.2 3.6 6 2.8 8 2.8zm0 3.2c1.1 0 2.1.4 2.9 1.1l1.2-1.2C11.1 4.9 9.6 4.2 8 4.2S4.9 4.9 3.9 5.9L5.1 7.1C5.9 6.4 6.9 6 8 6zm0 3.2c.55 0 1.05.2 1.4.55L8 11.15 6.6 9.75c.35-.35.85-.55 1.4-.55z"/></svg>
+        <svg width="27" height="12" viewBox="0 0 27 12"><rect x="0.6" y="1" width="22" height="10" rx="2.2" fill="none" stroke="#fff" stroke-width="1.3"/><rect x="2" y="2.5" width="16" height="7" rx="1.2" fill="#30d158"/><path d="M24 4v4a2.2 2.2 0 000-4z" fill="#fff" opacity=".4"/></svg>
+      </div>
+    </div>
+
+    <div class="view active" id="viewSplash">
+      <div class="splash-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none"><path d="M8 14c0-3.3 2.7-6 6-6h20c3.3 0 6 2.7 6 6v14c0 3.3-2.7 6-6 6H20l-8 8V14z" fill="#fff" opacity=".95"/><circle cx="18" cy="21" r="2.2" fill="#007AFF"/><circle cx="24" cy="21" r="2.2" fill="#007AFF"/><circle cx="30" cy="21" r="2.2" fill="#007AFF"/></svg>
+      </div>
+      <div class="splash-name">Italian DMs</div>
+      <div class="splash-sub">essere &amp; avere</div>
+    </div>
+
+    <div class="view" id="viewList">
+      <div class="nav-blur list-nav">
+        <div class="list-nav-top">
+          <button type="button" class="nav-link" id="btnEdit" aria-label="Edit">Edit</button>
+          <button type="button" class="nav-icon-btn" id="btnCompose" aria-label="Compose" title="New message">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 3v16M3 11h16" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <h1 class="list-title">Messages</h1>
+        <div class="filters-row" role="tablist">
+          <button type="button" class="filter-pill on" data-f="all">All</button>
+          <button type="button" class="filter-pill" data-f="known">Known Senders</button>
+        </div>
+      </div>
+      <div class="streak-chip" id="streakChip">0 streak · 0/0</div>
+      <div class="contact-list" id="contactList" role="list"></div>
+      <div class="list-toolbar">
+        <button type="button" class="tool-btn" id="btnChartHome" aria-label="Conjugation chart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10M7 12h10M7 16h6" stroke-linecap="round"/></svg>
+          <span class="label">Chart</span>
+        </button>
+        <button type="button" class="tool-btn" id="btnMute" aria-label="Toggle sound">
+          <svg id="muteIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 5L6 9H3v6h3l5 4V5z" stroke-linejoin="round"/><path d="M15 9.5c1.2.8 2 2 2 3.5s-.8 2.7-2 3.5" stroke-linecap="round"/><line x1="4" y1="4" x2="20" y2="20" id="muteSlash" stroke-linecap="round"/></svg>
+          <span class="label" id="muteLabel">Muted</span>
+        </button>
+        <button type="button" class="tool-btn" id="btnReset" aria-label="Reset progress">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12a9 9 0 119-9" stroke-linecap="round"/><path d="M3 4v5h5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="label">Reset</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="view" id="viewThread">
+      <div class="timer-bar" id="timerBar" style="display:none"><div class="timer-fill" id="timerFill"></div></div>
+      <div class="nav-blur">
+        <div class="thread-nav">
+          <button type="button" class="back-btn" id="btnBack" aria-label="Back to Messages">
+            <span class="chevron">‹</span> Messages
+          </button>
+          <div class="thread-person">
+            <div class="avatar" id="thAvatar">M</div>
+            <div class="tname" id="thName">Marco</div>
+          </div>
+          <div class="thread-actions">
+            <button type="button" class="face-btn" id="btnFaceAudio" aria-label="Audio call" title="Audio">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1.3 1.3 0 011.3-.3 12 12 0 003.7.6c.7 0 1.3.6 1.3 1.3V20c0 .7-.6 1.3-1.3 1.3C11.1 21.3 2.7 12.9 2.7 2.7 2.7 2 3.3 1.4 4 1.4h3.2c.7 0 1.3.6 1.3 1.3 0 1.3.2 2.5.6 3.7.1.5 0 1-.3 1.3L6.6 10.8z"/></svg>
+            </button>
+            <button type="button" class="face-btn" id="btnFaceVideo" aria-label="FaceTime" title="Video">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V7a2 2 0 00-2-2H4a2 2 0 00-2 2v10a2 2 0 002 2h11a2 2 0 002-2v-3.5l4 3.5V7l-4 3.5z"/></svg>
+            </button>
+            <button type="button" class="face-btn" id="btnChartThread" aria-label="Open conjugation chart" title="Chart">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 8h10M7 12h10M7 16h6" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="prog" id="threadProg" aria-hidden="true"></div>
+      </div>
+      <div class="messages" id="messages" role="log" aria-live="polite"></div>
+      <div class="composer-wrap" id="composer">
+        <div class="cue-hint" id="promptLine"></div>
+        <div class="suggestions" id="suggestions" hidden></div>
+        <div class="tiles-area" id="tilesArea" hidden>
+          <div class="built-word empty" id="builtWord" data-placeholder="Tap letters…"></div>
+          <div class="tile-bank" id="tileBank"></div>
+          <div class="tile-actions">
+            <button type="button" class="clear-t" id="btnClearTiles">Clear</button>
+            <button type="button" class="send-t" id="btnSendTiles">Send</button>
+          </div>
+        </div>
+        <div class="composer-row" id="composerRow">
+          <button type="button" class="app-btn" id="btnAppPlus" aria-label="Apps" tabindex="-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
+          </button>
+          <div class="field-wrap">
+            <input class="composer-input" id="typeInput" type="text" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="iMessage" aria-label="Message" readonly>
+            <button type="button" class="send-btn" id="btnSendType" aria-label="Send" disabled>
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8-8-8z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-overlay" id="chartModal" role="dialog" aria-modal="true" aria-labelledby="chartTitle">
+      <div class="sheet">
+        <div class="sheet-handle"></div>
+        <h2 id="chartTitle">essere &amp; avere</h2>
+        <p class="sub">Present tense</p>
+        <table class="chart-table" aria-label="essere conjugation">
+          <thead><tr><th colspan="3" style="color:#64d2ff;font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">essere — to be</th></tr>
+          <tr><th>Subject</th><th>Form</th><th>English</th></tr></thead>
+          <tbody>
+            <tr><td>io</td><td class="form">sono</td><td class="eng">I am</td></tr>
+            <tr><td>tu</td><td class="form">sei</td><td class="eng">you are (sg)</td></tr>
+            <tr><td>lui / lei</td><td class="form">è</td><td class="eng">he / she is</td></tr>
+            <tr><td>noi</td><td class="form">siamo</td><td class="eng">we are</td></tr>
+            <tr><td>voi</td><td class="form">siete</td><td class="eng">you are (pl)</td></tr>
+            <tr><td>loro</td><td class="form">sono</td><td class="eng">they are</td></tr>
+          </tbody>
+        </table>
+        <table class="chart-table" aria-label="avere conjugation">
+          <thead><tr><th colspan="3" style="color:#ff9f0a;font-size:15px;text-transform:none;letter-spacing:-.02em;font-weight:700">avere — to have</th></tr>
+          <tr><th>Subject</th><th>Form</th><th>English</th></tr></thead>
+          <tbody>
+            <tr><td>io</td><td class="form">ho</td><td class="eng">I have</td></tr>
+            <tr><td>tu</td><td class="form">hai</td><td class="eng">you have (sg)</td></tr>
+            <tr><td>lui / lei</td><td class="form">ha</td><td class="eng">he / she has</td></tr>
+            <tr><td>noi</td><td class="form">abbiamo</td><td class="eng">we have</td></tr>
+            <tr><td>voi</td><td class="form">avete</td><td class="eng">you have (pl)</td></tr>
+            <tr><td>loro</td><td class="form">hanno</td><td class="eng">they have</td></tr>
+          </tbody>
+        </table>
+        <p class="sub" style="margin-top:2px;margin-bottom:4px;color:#ff9f0a;font-weight:600">avere idioms (feelings)</p>
+        <ul class="idiom-list">
+          <li><strong>avere fame</strong><span>to be hungry (lit. have hunger)</span></li>
+          <li><strong>avere sete</strong><span>to be thirsty</span></li>
+          <li><strong>avere freddo</strong><span>to be cold</span></li>
+          <li><strong>avere caldo</strong><span>to be hot / warm</span></li>
+          <li><strong>avere sonno</strong><span>to be sleepy</span></li>
+        </ul>
+        <button type="button" class="close-sheet" id="btnCloseChart">Done</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+    <div class="home-indicator" aria-hidden="true"></div>
+  </div>
+</div>
+<script>
+(function () {
+  'use strict';
+
+  const ESSERE = {
+    io: 'sono', tu: 'sei', 'lui/lei': 'è', lui: 'è', lei: 'è',
+    noi: 'siamo', voi: 'siete', loro: 'sono'
+  };
+  const AVERE = {
+    io: 'ho', tu: 'hai', 'lui/lei': 'ha', lui: 'ha', lei: 'ha',
+    noi: 'abbiamo', voi: 'avete', loro: 'hanno'
+  };
+
+  /* Distractors pool */
+  const ALL_FORMS = ['sono','sei','è','siamo','siete','ho','hai','ha','abbiamo','avete','hanno'];
+
+  /* ========== THREAD DEFINITIONS ========== */
+  /*
+    mode: 'match' | 'lockin' | 'typeit' | 'group'
+    Each item:
+      them: { text, gloss?, from? }
+      cue: English instruction for student
+      answer: correct form (lowercase)
+      reply: full Italian reply template with {FORM}
+      replyGloss?: English
+      verb: 'essere'|'avere'
+      subject: for feedback
+  */
+
+  const THREADS = [
+    {
+      id: 'marco',
+      name: 'Marco',
+      initials: 'M',
+      avatarClass: 'm',
+      mode: 'match',
+      modeLabel: 'MATCH',
+      unlockAt: 0,
+      preview: 'yo you free after school?',
+      time: 'Now',
+      instr: 'Marco texts in English. Tap the Italian form that fits — like iMessage suggestions.',
+      items: [
+        {
+          them: { text: 'yo! you free after school? 🏀', gloss: null },
+          cue: 'Reply: “I am free” → pick form of <em>essere</em> (io)',
+          answer: 'sono',
+          reply: 'Sì, {FORM} libero! Ci vediamo?',
+          replyGloss: 'Yes, I am free! See you?',
+          verb: 'essere', subject: 'io',
+          distractors: ['sei', 'ho', 'è']
+        },
+        {
+          them: { text: 'perfetto. Mia sorella dice che lei ___ a casa. wait which verb 😅', gloss: 'My sister says that she ___ at home.' },
+          cue: 'Help Marco: <em>lei</em> + essere → she is',
+          answer: 'è',
+          reply: 'È “è” — lei {FORM} a casa.',
+          replyGloss: 'It’s “è” — she is at home.',
+          verb: 'essere', subject: 'lei',
+          distractors: ['sono', 'ha', 'sei']
+        },
+        {
+          them: { text: 'ok wait do YOU have homework tonight?', gloss: null },
+          cue: '“I have a ton” → <em>avere</em> (io)',
+          answer: 'ho',
+          reply: 'Sì, {FORM} un sacco di compiti 😩',
+          replyGloss: 'Yes, I have a ton of homework',
+          verb: 'avere', subject: 'io',
+          distractors: ['hai', 'sono', 'ha']
+        },
+        {
+          them: { text: 'ugh same. my parents have a dinner thing so…', gloss: null },
+          cue: '“They have dinner” → <em>avere</em> (loro)',
+          answer: 'hanno',
+          reply: 'Ah ok, loro {FORM} una cena. Noi possiamo studiare dopo?',
+          replyGloss: 'Ah ok, they have a dinner. Can we study later?',
+          verb: 'avere', subject: 'loro',
+          distractors: ['avete', 'sono', 'abbiamo']
+        },
+        {
+          them: { text: 'yes!! also are YOU hungry? i could smash a pizza', gloss: null },
+          cue: '“I am hungry” = avere fame (io)',
+          answer: 'ho',
+          reply: '{FORM} fame!!! 🍕 Andiamo?',
+          replyGloss: 'I am hungry!!! Shall we go?',
+          verb: 'avere', subject: 'io',
+          distractors: ['sono', 'hai', 'è'],
+          idiomNote: 'avere fame = to be hungry'
+        },
+        {
+          them: { text: 'cool. roommates: we ___ thirsty after practice lol', gloss: null },
+          cue: '“We are thirsty” = avere sete (noi)',
+          answer: 'abbiamo',
+          reply: 'Noi {FORM} sete dopo il calcio 💧',
+          replyGloss: 'We are thirsty after soccer',
+          verb: 'avere', subject: 'noi',
+          distractors: ['avete', 'siamo', 'hanno'],
+          idiomNote: 'avere sete = to be thirsty'
+        },
+        {
+          them: { text: 'bruh you late again? coach says YOU are always late 😂', gloss: null },
+          cue: 'Push back: “You are wrong!” → <em>essere</em> (tu)',
+          answer: 'sei',
+          reply: 'Non {FORM} giusto!! Solo ieri… ok forse 🙈',
+          replyGloss: 'You are not right!! Only yesterday… ok maybe',
+          verb: 'essere', subject: 'tu',
+          distractors: ['sono', 'hai', 'è']
+        },
+        {
+          them: { text: 'lmao fine. we are at the campo in 20. you in?', gloss: 'campo = field' },
+          cue: '“We are ready” → <em>essere</em> (noi)',
+          answer: 'siamo',
+          reply: 'Sì!! Noi {FORM} pronti 💪',
+          replyGloss: 'Yes!! We are ready',
+          verb: 'essere', subject: 'noi',
+          distractors: ['siete', 'abbiamo', 'sono']
+        }
+      ]
+    },
+    {
+      id: 'giulia',
+      name: 'Giulia',
+      initials: 'G',
+      avatarClass: 'g',
+      mode: 'lockin',
+      modeLabel: 'LOCK IN',
+      unlockAt: 0.70,
+      unlockFrom: 'marco',
+      preview: 'Ciao!! Tu ___ stanca?',
+      time: '2m',
+      instr: 'Giulia writes in Italian with a blank. Tap the conjugation chip to fill it.',
+      items: [
+        {
+          them: { text: 'Ciao!! Tu ___ stanca dopo il test? 😭', gloss: 'Hi!! Are you tired after the test?' },
+          cue: 'Fill blank: tu + essere',
+          answer: 'sei',
+          reply: 'Sì… {FORM} morta 💀 Ma tu?',
+          replyGloss: 'Yes… I am dead. And you?',
+          verb: 'essere', subject: 'tu',
+          distractors: ['sono', 'hai', 'è']
+        },
+        {
+          them: { text: 'Io ___ sonno da tre giorni lol', gloss: 'I have been sleepy for three days (idiom)' },
+          cue: 'avere sonno (io) — “I am sleepy”',
+          answer: 'ho',
+          reply: 'Anch’io {FORM} sonno 😴 Coffee run?',
+          replyGloss: 'Me too, I am sleepy. Coffee run?',
+          verb: 'avere', subject: 'io',
+          distractors: ['sono', 'hai', 'è'],
+          idiomNote: 'avere sonno = to be sleepy'
+        },
+        {
+          them: { text: 'I miei genitori ___ freddo in casa. They blast the AC 🥶', gloss: 'My parents are cold in the house' },
+          cue: 'loro + avere freddo',
+          answer: 'hanno',
+          reply: 'Crazy — loro {FORM} freddo e noi abbiamo caldo 😂',
+          replyGloss: 'Crazy — they are cold and we are hot',
+          verb: 'avere', subject: 'loro',
+          distractors: ['avete', 'sono', 'ha'],
+          idiomNote: 'avere freddo / avere caldo'
+        },
+        {
+          them: { text: 'Weekend: voi ___ liberi sabato?', gloss: 'Are you (pl) free Saturday?' },
+          cue: 'voi + essere',
+          answer: 'siete',
+          reply: 'Sì, noi siamo! Voi {FORM}… wait I mean sì ✨',
+          replyGloss: 'Yes we are! You are… wait I mean yes',
+          verb: 'essere', subject: 'voi',
+          distractors: ['siamo', 'avete', 'sono']
+        },
+        {
+          them: { text: 'Ok. Leo ___ sempre in ritardo though 🙄', gloss: 'Leo is always late though' },
+          cue: 'lui + essere',
+          answer: 'è',
+          reply: 'True, lui {FORM} un disastro col tempo ⏰',
+          replyGloss: 'True, he is a disaster with time',
+          verb: 'essere', subject: 'lui',
+          distractors: ['ha', 'sono', 'sei']
+        },
+        {
+          them: { text: 'Noi ___ una prova di storia lunedì 📚', gloss: 'We have a history quiz Monday' },
+          cue: 'noi + avere',
+          answer: 'abbiamo',
+          reply: 'Ugh sì, {FORM} una prova. Studiamo insieme?',
+          replyGloss: 'Ugh yes, we have a quiz. Study together?',
+          verb: 'avere', subject: 'noi',
+          distractors: ['siamo', 'avete', 'hanno']
+        },
+        {
+          them: { text: 'Perfetto. Tu ___ sete? Io sì 🧋', gloss: 'Are you thirsty? I am' },
+          cue: 'tu + avere sete',
+          answer: 'hai',
+          reply: 'Sì {FORM} sete!! Boba?',
+          replyGloss: 'Yes I am thirsty!! Boba?',
+          verb: 'avere', subject: 'tu',
+          distractors: ['ho', 'sei', 'ha'],
+          // Student replies as themselves about their own thirst after being asked
+          // Actually cue says tu — the blank in THEIR message is for tu. Student fills THEIR message blank conceptually by choosing form for the blank in Giulia's text... 
+          // In lockin mode: student fills the blank IN the incoming message by choosing the chip, then sends a reply that uses that form confirmation.
+          // Wait - re-read pedagogy: "Italian message with blank; tap suggestion chips for conjugation"
+          // So the blank is in the incoming message, student picks the form that goes in the blank.
+          // For this item, blank is "Tu ___ sete" so answer is hai. Reply can acknowledge.
+          idiomNote: 'avere sete'
+        },
+        {
+          them: { text: 'Mia mamma ___ sempre ragione… according to her 😂', gloss: 'My mom is always right / has always reason — wait: ha ragione uses avere' },
+          cue: 'lei + avere (she has)',
+          answer: 'ha',
+          reply: 'Lol lei {FORM} sempre ragione 🤷‍♀️',
+          replyGloss: 'Lol she is always right (lit. has reason)',
+          verb: 'avere', subject: 'lei',
+          distractors: ['è', 'ho', 'hai']
+        },
+        {
+          them: { text: 'Last one: loro ___ i biglietti per il concerto?!', gloss: 'Do they have the tickets for the concert?!' },
+          cue: 'loro + avere',
+          answer: 'hanno',
+          reply: 'Spero di sì… se {FORM} i biglietti, noi andiamo 🎸',
+          replyGloss: 'I hope so… if they have the tickets, we go',
+          verb: 'avere', subject: 'loro',
+          distractors: ['abbiamo', 'sono', 'avete']
+        }
+      ]
+    },
+    {
+      id: 'leo',
+      name: 'Leo',
+      initials: 'L',
+      avatarClass: 'l',
+      mode: 'typeit',
+      modeLabel: 'TYPE IT',
+      unlockAt: 0.70,
+      unlockFrom: 'giulia',
+      preview: 'bro build the verb 🔤',
+      time: '5m',
+      instr: 'Leo scrambles the letters. Tap tiles to build the exact form, then Send.',
+      items: [
+        {
+          them: { text: 'ok coach quiz: io + essere = ???', gloss: null },
+          cue: 'Build: <em>sono</em>',
+          answer: 'sono',
+          reply: '{FORM} pronto per la partita ⚽',
+          replyGloss: 'I am ready for the game',
+          verb: 'essere', subject: 'io'
+        },
+        {
+          them: { text: 'tu + avere (you have) — go', gloss: null },
+          cue: 'Build: <em>hai</em>',
+          answer: 'hai',
+          reply: 'Se {FORM} tempo, passami la palla!',
+          replyGloss: 'If you have time, pass me the ball!',
+          verb: 'avere', subject: 'tu'
+        },
+        {
+          them: { text: 'noi + essere. we are late already 🏃', gloss: null },
+          cue: 'Build: <em>siamo</em>',
+          answer: 'siamo',
+          reply: 'Dai, {FORM} in ritardo!! Corri!',
+          replyGloss: 'C’mon, we are late!! Run!',
+          verb: 'essere', subject: 'noi'
+        },
+        {
+          them: { text: 'loro + avere fame after gym', gloss: 'they are hungry' },
+          cue: 'Build: <em>hanno</em>',
+          answer: 'hanno',
+          reply: 'Ovvio che {FORM} fame 🍔',
+          replyGloss: 'Obviously they are hungry',
+          verb: 'avere', subject: 'loro',
+          idiomNote: 'avere fame'
+        },
+        {
+          them: { text: 'lei + essere (she is) reading', gloss: null },
+          cue: 'Build: <em>è</em> (with accent!)',
+          answer: 'è',
+          reply: 'Lei {FORM} in biblioteca.',
+          replyGloss: 'She is in the library.',
+          verb: 'essere', subject: 'lei',
+          specialTiles: ['è', 'e', 'é', 'ha'] // will scramble from answer letters mostly
+        },
+        {
+          them: { text: 'voi + avere — you guys have the keys?', gloss: null },
+          cue: 'Build: <em>avete</em>',
+          answer: 'avete',
+          reply: 'Se {FORM} le chiavi, apri!!',
+          replyGloss: 'If you have the keys, open!!',
+          verb: 'avere', subject: 'voi'
+        },
+        {
+          them: { text: 'io + avere caldo in this classroom 🥵', gloss: 'I am hot/warm' },
+          cue: 'Build: <em>ho</em>',
+          answer: 'ho',
+          reply: '{FORM} caldo, aprite la finestra!',
+          replyGloss: 'I am hot, open the window!',
+          verb: 'avere', subject: 'io',
+          idiomNote: 'avere caldo'
+        },
+        {
+          them: { text: 'final boss: voi + essere', gloss: null },
+          cue: 'Build: <em>siete</em>',
+          answer: 'siete',
+          reply: 'Voi {FORM} i migliori compagni 🙌',
+          replyGloss: 'You are the best teammates',
+          verb: 'essere', subject: 'voi'
+        }
+      ]
+    },
+    {
+      id: 'group',
+      name: 'Weekend Crew',
+      initials: 'WC',
+      avatarClass: 'grp',
+      mode: 'group',
+      modeLabel: 'GROUP',
+      unlockAt: 0.70,
+      unlockFrom: 'leo',
+      preview: 'Marco, Giulia, Leo, Nonna…',
+      time: '1m',
+      instr: 'Group chat — mixed cues, keep the streak. Generous timer. Chart is always there.',
+      timed: true,
+      timePerItem: 28000,
+      items: [
+        {
+          them: { text: 'Chi viene al mare? Noi ___ pronti! 🌊', gloss: 'Who’s coming to the beach? We are ready!', from: 'Giulia' },
+          cue: 'noi + essere',
+          answer: 'siamo',
+          reply: 'Noi {FORM} pronti!! 🏖️',
+          replyGloss: 'We are ready!!',
+          verb: 'essere', subject: 'noi',
+          distractors: ['siete', 'abbiamo', 'sono']
+        },
+        {
+          them: { text: 'Aspettate — io ___ fame prima 🥐', gloss: 'Wait — I’m hungry first', from: 'Leo' },
+          cue: 'io + avere fame',
+          answer: 'ho',
+          reply: 'Anche io {FORM} fame. Cornetto?',
+          replyGloss: 'Me too, I’m hungry. Cornetto?',
+          verb: 'avere', subject: 'io',
+          distractors: ['sono', 'hai', 'ha'],
+          idiomNote: 'avere fame'
+        },
+        {
+          them: { text: 'I nonni ___ a casa. Portiamo dolci?', gloss: 'Grandparents are at home. Bring sweets?', from: 'Marco' },
+          cue: 'loro + essere',
+          answer: 'sono',
+          reply: 'Sì, loro {FORM} a casa 💕',
+          replyGloss: 'Yes, they are at home',
+          verb: 'essere', subject: 'loro',
+          distractors: ['hanno', 'siamo', 'è']
+        },
+        {
+          them: { text: 'Cari, voi ___ sete? Ho portato acqua 💧', gloss: 'Dears, are you thirsty? I brought water', from: 'Nonna' },
+          cue: 'voi + avere sete',
+          answer: 'avete',
+          reply: 'Grazie Nonna!! Sì, {FORM} sete ❤️',
+          replyGloss: 'Thanks Nonna!! Yes — (form: avete)',
+          // Actually student fills Nonna's blank: voi ___ sete → avete
+          verb: 'avere', subject: 'voi',
+          distractors: ['abbiamo', 'siete', 'hanno'],
+          idiomNote: 'avere sete'
+        },
+        {
+          them: { text: 'Il treno ___ in ritardo di 10 min 😤', gloss: 'The train is 10 min late', from: 'Marco' },
+          cue: 'lui/it + essere',
+          answer: 'è',
+          reply: 'Tipico… {FORM} sempre in ritardo',
+          replyGloss: 'Typical… it is always late',
+          verb: 'essere', subject: 'lui',
+          distractors: ['ha', 'sono', 'sei']
+        },
+        {
+          them: { text: 'Stasera noi ___ un film a casa?', gloss: 'Tonight do we have a movie at home?', from: 'Giulia' },
+          cue: 'noi + avere',
+          answer: 'abbiamo',
+          reply: 'Sì!! {FORM} Netflix e snack 🍿',
+          replyGloss: 'Yes!! We have Netflix and snacks',
+          verb: 'avere', subject: 'noi',
+          distractors: ['siamo', 'avete', 'hanno']
+        },
+        {
+          them: { text: 'Tu ___ freddo? Prendi la mia felpa', gloss: 'Are you cold? Take my hoodie', from: 'Leo' },
+          cue: 'tu + avere freddo',
+          answer: 'hai',
+          reply: 'Un po’… sì {FORM} freddo 🧥',
+          replyGloss: 'A bit… yes I’m cold',
+          // Filling Leo's blank about "tu"
+          verb: 'avere', subject: 'tu',
+          distractors: ['ho', 'sei', 'ha'],
+          idiomNote: 'avere freddo'
+        },
+        {
+          them: { text: 'Ragazzi, voi ___ meravigliosi. Divertitevi!', gloss: 'Kids, you are wonderful. Have fun!', from: 'Nonna' },
+          cue: 'voi + essere',
+          answer: 'siete',
+          reply: 'Grazie Nonna 🥹 Voi {FORM} la migliore!',
+          replyGloss: 'Thanks Nonna. You are the best!',
+          verb: 'essere', subject: 'voi',
+          distractors: ['siamo', 'avete', 'sono']
+        },
+        {
+          them: { text: 'Quick: loro + avere sonno after the trip', gloss: 'they are sleepy', from: 'Marco' },
+          cue: 'loro + avere sonno',
+          answer: 'hanno',
+          reply: 'Ovvio, {FORM} sonno 😴 Buonanotte chat',
+          replyGloss: 'Obviously, they are sleepy. Goodnight chat',
+          verb: 'avere', subject: 'loro',
+          distractors: ['sono', 'abbiamo', 'avete'],
+          idiomNote: 'avere sonno'
+        },
+        {
+          them: { text: 'Last: io + essere (I am) so happy rn', gloss: null, from: 'Giulia' },
+          cue: 'io + essere',
+          answer: 'sono',
+          reply: '{FORM} felicissima!! 💫 A domani',
+          replyGloss: 'I am so happy!! See you tomorrow',
+          verb: 'essere', subject: 'io',
+          distractors: ['ho', 'sei', 'è']
+        }
+      ]
+    }
+  ];
+
+
+  const STORAGE_KEY = 'italianDMs_v1';
+  let state = loadState();
+  let muted = state.muted !== false;
+  let currentThread = null;
+  let itemIndex = 0;
+  let awaitingAnswer = false;
+  let tileLetters = [];
+  let built = [];
+  let timerId = null;
+  let typeModeActive = false;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return { muted: true, streak: 0, correct: 0, tried: 0, progress: {}, splashSeen: false };
+  }
+  function saveState() {
+    state.muted = muted;
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  function threadStats(id) {
+    return state.progress[id] || { correct: 0, tried: 0, completed: false };
+  }
+  function threadPct(id) {
+    const s = threadStats(id);
+    if (s.tried === 0) return 0;
+    return s.correct / s.tried;
+  }
+  function isUnlocked(thread) {
+    if (!thread.unlockFrom) return true;
+    const prev = THREADS.find(t => t.id === thread.unlockFrom);
+    if (!prev) return true;
+    const s = threadStats(prev.id);
+    if (s.tried < Math.max(3, Math.ceil(prev.items.length * 0.5))) return false;
+    return threadPct(prev.id) >= (thread.unlockAt || 0.7) || s.completed;
+  }
+
+  let audioCtx = null;
+  function beep(freq, dur, type) {
+    if (muted) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type || 'sine';
+      o.frequency.value = freq;
+      g.gain.value = 0.04;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      o.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+  }
+  function sfxOk() { beep(660, 0.08); setTimeout(() => beep(880, 0.1), 70); }
+  function sfxBad() { beep(220, 0.15, 'triangle'); }
+
+  function updateClock() {
+    const d = new Date();
+    const el = document.getElementById('clock');
+    if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+  updateClock();
+  setInterval(updateClock, 30000);
+
+  const $ = (id) => document.getElementById(id);
+  const messagesEl = $('messages');
+  const suggestionsEl = $('suggestions');
+  const tilesArea = $('tilesArea');
+  const builtWord = $('builtWord');
+  const tileBank = $('tileBank');
+  const typeInput = $('typeInput');
+  const promptLine = $('promptLine');
+
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function updateMuteUI() {
+    $('muteLabel').textContent = muted ? 'Muted' : 'Sound';
+    const slash = $('muteSlash');
+    if (slash) slash.style.display = muted ? 'inline' : 'none';
+  }
+
+  function updateHomeStats() {
+    $('streakChip').textContent = state.streak + ' streak · ' + state.correct + '/' + state.tried;
+    updateMuteUI();
+  }
+
+  function renderContacts() {
+    const list = $('contactList');
+    list.innerHTML = '';
+    THREADS.forEach((th) => {
+      const unlocked = isUnlocked(th);
+      const stats = threadStats(th.id);
+      const pct = stats.tried ? Math.round(threadPct(th.id) * 100) : null;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'contact-row' + (unlocked ? '' : ' locked');
+      btn.setAttribute('role', 'listitem');
+      btn.innerHTML =
+        '<div class="avatar ' + th.avatarClass + '">' + th.initials + '</div>' +
+        '<div class="contact-meta">' +
+          '<div class="name-row">' +
+            '<span class="name">' + th.name + (unlocked ? '' : ' <span class="lock-badge">🔒</span>') + '</span>' +
+            '<span class="time">' + (unlocked ? th.time : '') + '</span>' +
+          '</div>' +
+          '<div class="preview">' +
+            (unlocked ? th.preview : 'Score 70% on previous chat to unlock') +
+            (pct !== null && unlocked ? ' <span class="pct-dot">· ' + pct + '%</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<span class="chev">›</span>';
+      if (unlocked) btn.addEventListener('click', () => openThread(th.id));
+      list.appendChild(btn);
+    });
+    updateHomeStats();
+  }
+
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => {
+      if (v.id === 'viewSplash') return;
+      v.classList.remove('active');
+    });
+    $(id).classList.add('active');
+  }
+
+  function dismissSplash() {
+    const splash = $('viewSplash');
+    if (splash.classList.contains('gone')) return;
+    splash.classList.add('leaving');
+    setTimeout(() => {
+      splash.classList.add('gone');
+      splash.classList.remove('active', 'leaving');
+      showView('viewList');
+    }, 480);
+    state.splashSeen = true;
+    saveState();
+  }
+
+  function openThread(id) {
+    const th = THREADS.find(t => t.id === id);
+    if (!th || !isUnlocked(th)) return;
+    currentThread = th;
+    itemIndex = 0;
+    awaitingAnswer = false;
+    clearTimer();
+
+    $('thAvatar').className = 'avatar ' + th.avatarClass;
+    $('thAvatar').textContent = th.initials;
+    $('thName').textContent = th.name;
+    messagesEl.innerHTML = '';
+    hideAllInput();
+
+    const day = document.createElement('div');
+    day.className = 'day-label';
+    day.textContent = 'Today ' + clockLabel();
+    messagesEl.appendChild(day);
+
+    const sys = document.createElement('div');
+    sys.className = 'sys';
+    sys.textContent = modeHint(th.mode);
+    messagesEl.appendChild(sys);
+
+    renderProg();
+    showView('viewThread');
+    $('timerBar').style.display = th.timed ? 'block' : 'none';
+    setTimeout(() => advanceItem(), 400);
+  }
+
+  function clockLabel() {
+    const d = new Date();
+    let h = d.getHours(), m = d.getMinutes();
+    const am = h < 12;
+    h = h % 12 || 12;
+    return h + ':' + String(m).padStart(2, '0') + (am ? ' AM' : ' PM');
+  }
+
+  function modeHint(mode) {
+    if (mode === 'match') return 'iMessage suggestions — tap one to send.';
+    if (mode === 'lockin') return 'Read the blank. Tap the form that fits.';
+    if (mode === 'typeit') return 'Build the word with letter tiles.';
+    return 'Group chat — stay quick. Chart is up top.';
+  }
+
+  function renderProg() {
+    const el = $('threadProg');
+    el.innerHTML = '';
+    if (!currentThread) return;
+    currentThread.items.forEach((_, i) => {
+      const s = document.createElement('span');
+      if (i < itemIndex) s.className = 'done';
+      else if (i === itemIndex) s.className = 'cur';
+      el.appendChild(s);
+    });
+  }
+
+  function hideAllInput() {
+    suggestionsEl.hidden = true;
+    suggestionsEl.innerHTML = '';
+    tilesArea.hidden = true;
+    promptLine.innerHTML = '';
+    typeInput.value = '';
+    typeInput.readOnly = true;
+    typeInput.placeholder = 'iMessage';
+    typeModeActive = false;
+    $('btnSendType').disabled = true;
+    $('composerRow').style.display = '';
+  }
+
+  function addBubble(side, text, opts) {
+    opts = opts || {};
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + side + (opts.cls ? ' ' + opts.cls : '');
+    if (opts.from) {
+      const sender = document.createElement('div');
+      sender.className = 'sender';
+      sender.textContent = opts.from;
+      wrap.appendChild(sender);
+    }
+    const bub = document.createElement('div');
+    bub.className = 'bubble';
+    bub.innerHTML = text;
+    wrap.appendChild(bub);
+    if (opts.gloss) {
+      const g = document.createElement('div');
+      g.className = 'gloss';
+      g.textContent = opts.gloss;
+      wrap.appendChild(g);
+    }
+    messagesEl.appendChild(wrap);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return wrap;
+  }
+
+  function addSys(text, cls) {
+    const d = document.createElement('div');
+    d.className = 'sys' + (cls ? ' ' + cls : '');
+    d.textContent = text;
+    messagesEl.appendChild(d);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function formatThemText(item) {
+    let t = item.them.text;
+    if (t.indexOf('___') !== -1) {
+      t = t.replace('___', '<span class="blank">___</span>');
+    }
+    return t;
+  }
+
+  function advanceItem() {
+    clearTimer();
+    hideAllInput();
+    if (!currentThread) return;
+    if (itemIndex >= currentThread.items.length) {
+      finishThread();
+      return;
+    }
+    const item = currentThread.items[itemIndex];
+    renderProg();
+    setTimeout(() => {
+      addBubble('them', formatThemText(item), {
+        gloss: item.them.gloss || null,
+        from: item.them.from || null
+      });
+      let cue = item.cue;
+      if (item.idiomNote) cue += ' <span class="idiom">(' + item.idiomNote + ')</span>';
+      promptLine.innerHTML = cue;
+      awaitingAnswer = true;
+      presentInput(item);
+      if (currentThread.timed) startTimer(currentThread.timePerItem || 28000);
+    }, 350);
+  }
+
+  function presentInput(item) {
+    const mode = currentThread.mode;
+    if (mode === 'match' || mode === 'lockin' || mode === 'group') {
+      showChips(item);
+      typeInput.placeholder = 'Tap a suggestion…';
+      typeInput.readOnly = true;
+    } else if (mode === 'typeit') {
+      showTiles(item);
+      $('composerRow').style.display = 'none';
+    }
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
+
+  function uniqueChips(answer, distractors) {
+    const set = new Set();
+    set.add(answer);
+    (distractors || []).forEach(d => set.add(d));
+    while (set.size < 4) {
+      const r = ALL_FORMS[Math.floor(Math.random() * ALL_FORMS.length)];
+      if (r !== answer) set.add(r);
+    }
+    return shuffle(Array.from(set)).slice(0, 4);
+  }
+
+  function showChips(item) {
+    suggestionsEl.hidden = false;
+    suggestionsEl.innerHTML = '';
+    const chips = uniqueChips(item.answer, item.distractors);
+    chips.forEach(form => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'chip';
+      b.textContent = form;
+      b.addEventListener('click', () => {
+        if (!awaitingAnswer) return;
+        handleAnswer(form, b);
+      });
+      suggestionsEl.appendChild(b);
+    });
+  }
+
+  function showTiles(item) {
+    tilesArea.hidden = false;
+    built = [];
+    const ans = item.answer;
+    let letters = Array.from(ans);
+    if (ans === 'è') {
+      letters = letters.concat(['e', 'é', 'ha', 'a']);
+    } else {
+      const decoys = Array.from('aeioumnstrb');
+      while (letters.length < Math.max(6, ans.length + 2)) {
+        letters.push(decoys[Math.floor(Math.random() * decoys.length)]);
+      }
+    }
+    tileLetters = shuffle(letters);
+    renderTiles();
+  }
+
+  function renderTiles() {
+    builtWord.textContent = built.join('');
+    builtWord.classList.toggle('empty', built.length === 0);
+    tileBank.innerHTML = '';
+    tileLetters.forEach((ch, idx) => {
+      const used = built._used && built._used[idx];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tile' + (used ? ' used' : '');
+      b.textContent = ch;
+      b.addEventListener('click', () => {
+        if (used || !awaitingAnswer) return;
+        if (!built._used) built._used = {};
+        built._used[idx] = true;
+        built.push(ch);
+        renderTiles();
+      });
+      tileBank.appendChild(b);
+    });
+  }
+
+  $('btnClearTiles').addEventListener('click', () => {
+    built = [];
+    renderTiles();
+  });
+  $('btnSendTiles').addEventListener('click', () => {
+    if (!awaitingAnswer || !currentThread) return;
+    handleAnswer(built.join(''), null);
+  });
+
+  typeInput.addEventListener('input', () => {
+    if (!typeModeActive) return;
+    $('btnSendType').disabled = typeInput.value.trim().length === 0;
+  });
+  typeInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && typeModeActive) {
+      e.preventDefault();
+      $('btnSendType').click();
+    }
+  });
+  $('btnSendType').addEventListener('click', () => {
+    if (!awaitingAnswer || !typeModeActive) return;
+    handleAnswer(typeInput.value.trim(), null);
+  });
+
+  function normalize(s) {
+    return (s || '').trim().toLowerCase().normalize('NFC');
+  }
+
+  function handleAnswer(guess, chipEl) {
+    if (!awaitingAnswer || !currentThread) return;
+    awaitingAnswer = false;
+    clearTimer();
+    hideAllInput();
+
+    const item = currentThread.items[itemIndex];
+    const ok = normalize(guess) === normalize(item.answer);
+
+    state.tried++;
+    const st = threadStats(currentThread.id);
+    st.tried = (st.tried || 0) + 1;
+
+    if (ok) {
+      state.correct++;
+      state.streak++;
+      st.correct = (st.correct || 0) + 1;
+      sfxOk();
+      if (chipEl) chipEl.classList.add('correct-flash');
+      const replyText = item.reply.replace('{FORM}', item.answer);
+      addBubble('me', replyText, { gloss: item.replyGloss || null, cls: 'correct' });
+      addSys('Nice — ' + item.subject + ' → ' + item.answer, 'ok');
+    } else {
+      state.streak = 0;
+      sfxBad();
+      if (chipEl) chipEl.classList.add('wrong-flash');
+      const wrongShow = guess || '…';
+      addBubble('me', wrongShow, { cls: 'wrong' });
+      const tease = gentleTease(item, wrongShow);
+      setTimeout(() => {
+        addBubble('them', tease.text, { from: tease.from, gloss: tease.gloss });
+        addSys('Right form: ' + item.answer + ' (' + item.subject + ' + ' + item.verb + ')', 'tip');
+        setTimeout(() => {
+          const replyText = item.reply.replace('{FORM}', item.answer);
+          addBubble('me', replyText, { gloss: item.replyGloss || null });
+          afterItem();
+        }, 700);
+      }, 400);
+      state.progress[currentThread.id] = st;
+      saveState();
+      updateHomeStats();
+      return;
+    }
+
+    state.progress[currentThread.id] = st;
+    saveState();
+    updateHomeStats();
+    setTimeout(afterItem, 900);
+  }
+
+  function gentleTease(item, wrong) {
+    const who = (currentThread.mode === 'group' && item.them.from) ? item.them.from : currentThread.name;
+    const lines = [
+      { text: 'lol wait — not “' + wrong + '” Try again in your head… it’s “' + item.answer + '”', gloss: 'Friendly correction' },
+      { text: 'quasi!! ma è “' + item.answer + '”', gloss: 'almost!! but it’s…' },
+      { text: 'nah fam — ' + item.subject + ' takes “' + item.answer + '”', gloss: null },
+      { text: 'close! Remember: ' + item.verb + ' → ' + item.answer + ' for ' + item.subject, gloss: null }
+    ];
+    const pick = lines[Math.floor(Math.random() * lines.length)];
+    return { text: pick.text, gloss: pick.gloss, from: who };
+  }
+
+  function afterItem() {
+    itemIndex++;
+    renderProg();
+    if (itemIndex >= currentThread.items.length) {
+      setTimeout(finishThread, 500);
+    } else {
+      setTimeout(advanceItem, 600);
+    }
+  }
+
+  function finishThread() {
+    clearTimer();
+    hideAllInput();
+    const st = threadStats(currentThread.id);
+    const pct = st.tried ? Math.round((st.correct / st.tried) * 100) : 0;
+    st.completed = pct >= 70;
+    state.progress[currentThread.id] = st;
+    saveState();
+
+    addSys('Chat complete — ' + pct + '% this thread', pct >= 70 ? 'ok' : 'tip');
+    if (pct >= 70) {
+      addBubble('them', 'ok you\'re cooking — see you in the next chat', {
+        from: currentThread.name === 'Weekend Crew' ? 'Giulia' : currentThread.name
+      });
+      const next = THREADS.find(t => t.unlockFrom === currentThread.id);
+      if (next && isUnlocked(next)) {
+        showToast('Unlocked: ' + next.name);
+      } else if (!next) {
+        showToast('All threads clear. Streak: ' + state.streak);
+      }
+    } else {
+      addBubble('them', 'decent run — hit 70% to unlock the next chat. retry anytime', {
+        from: currentThread.name === 'Weekend Crew' ? 'Leo' : currentThread.name
+      });
+    }
+    promptLine.innerHTML = '‹ Messages to go back · chart in the header';
+  }
+
+  function startTimer(ms) {
+    clearTimer();
+    const fill = $('timerFill');
+    fill.style.transition = 'none';
+    fill.style.width = '100%';
+    void fill.offsetWidth;
+    fill.style.transition = 'width ' + ms + 'ms linear';
+    fill.style.width = '0%';
+    timerId = setTimeout(() => {
+      if (awaitingAnswer) {
+        addSys('Time’s soft-up — sending a nudge…', 'tip');
+        handleAnswer('', null);
+      }
+    }, ms);
+  }
+  function clearTimer() {
+    if (timerId) { clearTimeout(timerId); timerId = null; }
+    const fill = $('timerFill');
+    if (fill) {
+      fill.style.transition = 'none';
+      fill.style.width = '100%';
+    }
+  }
+
+  $('btnBack').addEventListener('click', () => {
+    clearTimer();
+    awaitingAnswer = false;
+    currentThread = null;
+    renderContacts();
+    showView('viewList');
+  });
+
+  function openChart() { $('chartModal').classList.add('open'); }
+  function closeChart() { $('chartModal').classList.remove('open'); }
+  $('btnChartHome').addEventListener('click', openChart);
+  $('btnChartThread').addEventListener('click', openChart);
+  $('btnCloseChart').addEventListener('click', closeChart);
+  $('chartModal').addEventListener('click', (e) => {
+    if (e.target === $('chartModal')) closeChart();
+  });
+
+  $('btnMute').addEventListener('click', () => {
+    muted = !muted;
+    saveState();
+    updateHomeStats();
+    if (!muted) sfxOk();
+  });
+
+  $('btnReset').addEventListener('click', () => {
+    if (!confirm('Reset all progress and streak?')) return;
+    state = { muted: muted, streak: 0, correct: 0, tried: 0, progress: {}, splashSeen: true };
+    saveState();
+    renderContacts();
+    showToast('Progress reset');
+  });
+
+  $('btnEdit').addEventListener('click', () => showToast('Edit mode — pick a chat to practice'));
+  $('btnCompose').addEventListener('click', () => showToast('New message — open a chat below'));
+  $('btnFaceAudio').addEventListener('click', () => {});
+  $('btnFaceVideo').addEventListener('click', () => {});
+  $('btnAppPlus').addEventListener('click', () => openChart());
+
+  document.querySelectorAll('.filter-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.filter-pill').forEach(x => x.classList.remove('on'));
+      p.classList.add('on');
+    });
+  });
+
+  muted = state.muted !== false;
+  renderContacts();
+
+  if (state.splashSeen) {
+    $('viewSplash').classList.add('gone');
+    $('viewSplash').classList.remove('active');
+    showView('viewList');
+  } else {
+    setTimeout(dismissSplash, 1600);
+  }
+
+  (function verify() {
+    const expectE = ['sono','sei','è','siamo','siete','sono'];
+    const expectA = ['ho','hai','ha','abbiamo','avete','hanno'];
+    const gotE = [ESSERE.io, ESSERE.tu, ESSERE.lui, ESSERE.noi, ESSERE.voi, ESSERE.loro];
+    const gotA = [AVERE.io, AVERE.tu, AVERE.lui, AVERE.noi, AVERE.voi, AVERE.loro];
+    for (let i = 0; i < 6; i++) {
+      if (gotE[i] !== expectE[i]) console.error('essere mismatch', i, gotE[i]);
+      if (gotA[i] !== expectA[i]) console.error('avere mismatch', i, gotA[i]);
+    }
+    THREADS.forEach(th => th.items.forEach(it => {
+      const table = it.verb === 'essere' ? ESSERE : AVERE;
+      const expected = table[it.subject] || table['lui/lei'];
+      if (expected && normalize(it.answer) !== normalize(expected)) {
+        console.warn('Check answer', th.id, it.answer, 'vs', expected, it.subject, it.verb);
+      }
+    }));
+  })();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
