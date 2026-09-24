@@ -1276,8 +1276,9 @@ button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visi
   transform: translateX(-50%) translateY(0);
 }
 
-/* Narrow phones: nearly full viewport, keep island/status/home */
-@media (max-width: 430px), (max-height: 780px) {
+/* Narrow phones (and short landscape phones): nearly full viewport, keep island/status/home.
+   Laptops/Chromebooks (e.g. 1366x768, ~650px tall inside the browser) keep the centered phone frame. */
+@media (max-width: 430px), (max-height: 500px) and (pointer: coarse) {
   body { padding: 0; align-items: stretch; justify-content: stretch; }
   .device {
     width: 100%;
@@ -1296,8 +1297,9 @@ button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visi
   .sheet { padding-bottom: max(36px, calc(20px + env(safe-area-inset-bottom, 0px))); }
 }
 /* Mid-width Chromebooks / tablets: keep phone frame centered */
-@media (min-width: 431px) and (min-height: 781px) {
-  body { padding: 20px; }
+@media (min-width: 431px) {
+  body { padding: 12px; }
+  .device { height: min(var(--phone-h), calc(100dvh - 24px)); }
 }
 
 </style>
@@ -1429,7 +1431,7 @@ button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visi
           <tbody>
             <tr><td>io</td><td class="form">sono</td><td class="eng">I am</td></tr>
             <tr><td>tu</td><td class="form">sei</td><td class="eng">you are (sg)</td></tr>
-            <tr><td>lui / lei</td><td class="form">è</td><td class="eng">he / she is</td></tr>
+            <tr><td>lui / lei</td><td class="form">è</td><td class="eng">he / she / it is</td></tr>
             <tr><td>noi</td><td class="form">siamo</td><td class="eng">we are</td></tr>
             <tr><td>voi</td><td class="form">siete</td><td class="eng">you are (pl)</td></tr>
             <tr><td>loro</td><td class="form">sono</td><td class="eng">they are</td></tr>
@@ -1441,19 +1443,21 @@ button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visi
           <tbody>
             <tr><td>io</td><td class="form">ho</td><td class="eng">I have</td></tr>
             <tr><td>tu</td><td class="form">hai</td><td class="eng">you have (sg)</td></tr>
-            <tr><td>lui / lei</td><td class="form">ha</td><td class="eng">he / she has</td></tr>
+            <tr><td>lui / lei</td><td class="form">ha</td><td class="eng">he / she / it has</td></tr>
             <tr><td>noi</td><td class="form">abbiamo</td><td class="eng">we have</td></tr>
             <tr><td>voi</td><td class="form">avete</td><td class="eng">you have (pl)</td></tr>
             <tr><td>loro</td><td class="form">hanno</td><td class="eng">they have</td></tr>
           </tbody>
         </table>
-        <p class="sub" style="margin-top:2px;margin-bottom:4px;color:var(--orange);font-weight:600">avere idioms (feelings)</p>
+        <p class="sub" style="margin-top:2px;margin-bottom:4px;color:var(--orange);font-weight:600">avere idioms (where English uses “to be”)</p>
         <ul class="idiom-list">
           <li><strong>avere fame</strong><span>to be hungry (lit. have hunger)</span></li>
           <li><strong>avere sete</strong><span>to be thirsty</span></li>
           <li><strong>avere freddo</strong><span>to be cold</span></li>
           <li><strong>avere caldo</strong><span>to be hot / warm</span></li>
           <li><strong>avere sonno</strong><span>to be sleepy</span></li>
+          <li><strong>avere ragione</strong><span>to be right</span></li>
+          <li><strong>avere … anni</strong><span>to be … years old (Ho 16 anni = I’m 16)</span></li>
         </ul>
         <button type="button" class="close-sheet" id="btnCloseChart">Done</button>
       </div>
@@ -1579,25 +1583,25 @@ const THREADS = [
       mode: 'match',
       modeLabel: 'MATCH',
       unlockAt: 0,
-      preview: 'Ehi bro! Sei libero dopo scuola?',
+      preview: 'Ehi! Sei al campetto dopo scuola?',
       time: 'Now',
       instr: 'Marco texts like an Italian teen. Tap the form that fits — like iMessage suggestions.',
       items: [
         {
-          them: { text: 'Ehi bro! Sei libero dopo scuola? 🏀', gloss: 'Hey bro! Are you free after school?' },
-          cue: 'Reply: “I am free” → pick form of <em>essere</em> (io)',
+          them: { text: 'Ehi! Sei al campetto dopo scuola? 🏀', gloss: 'Hey! Are you at the court after school?' },
+          cue: 'Reply: “I am there at four” → pick a form of <em>essere</em> (io)',
           answer: 'sono',
-          reply: 'Sì, {FORM} libero! Ci vediamo?',
-          replyGloss: 'Yes, I am free! See you?',
+          reply: 'Sì, io {FORM} lì alle quattro! Ci vediamo?',
+          replyGloss: 'Yes, I’m there at four! See you?',
           verb: 'essere', subject: 'io',
           distractors: ['sei', 'ho', 'è']
         },
         {
-          them: { text: 'Perfetto. Mia sorella dice che lei ___ a casa… che verbo?? 😅', gloss: 'Perfect. My sister says that she ___ at home… which verb??' },
+          them: { text: 'Perfetto. Mia sorella dice che lei ___ a casa… che verbo?? 😅', gloss: 'Perfect. My sister says she ___ at home… which verb??' },
           cue: 'Help Marco: <em>lei</em> + essere → she is',
           answer: 'è',
-          reply: 'È “è” — lei {FORM} a casa.',
-          replyGloss: 'It’s “è” — she is at home.',
+          reply: 'Facile: lei {FORM} a casa 😉',
+          replyGloss: 'Easy: she is at home',
           verb: 'essere', subject: 'lei',
           distractors: ['sono', 'ha', 'sei']
         },
@@ -1605,55 +1609,55 @@ const THREADS = [
           them: { text: 'Ok aspetta — TU hai compiti stasera?', gloss: 'Ok wait — do YOU have homework tonight?' },
           cue: '“I have a ton” → <em>avere</em> (io)',
           answer: 'ho',
-          reply: 'Sì, {FORM} un sacco di compiti 😩',
+          reply: 'Sì, io {FORM} un sacco di compiti 😩',
           replyGloss: 'Yes, I have a ton of homework',
           verb: 'avere', subject: 'io',
           distractors: ['hai', 'sono', 'ha']
         },
         {
-          them: { text: 'Stessa cosa. I miei genitori hanno una cena quindi…', gloss: 'Ugh same. My parents have a dinner thing so…' },
-          cue: '“They have dinner” → <em>avere</em> (loro)',
+          them: { text: 'Stessa cosa. Stasera i miei genitori ___ una cena, quindi studiamo da me?', gloss: 'Same. Tonight my parents ___ a dinner, so study at my place?' },
+          cue: '“They have a dinner” → <em>avere</em> (loro)',
           answer: 'hanno',
-          reply: 'Ah ok, loro {FORM} una cena. Noi possiamo studiare dopo?',
-          replyGloss: 'Ah ok, they have a dinner. Can we study later?',
+          reply: 'Ok! Se loro {FORM} una cena, vengo da te alle sette 📚',
+          replyGloss: 'Ok! If they have a dinner, I’ll come to your place at seven',
           verb: 'avere', subject: 'loro',
           distractors: ['avete', 'sono', 'abbiamo']
         },
         {
-          them: { text: 'Sììì!! Anche tu hai fame? Io spacco una pizza', gloss: 'Yesss!! Are you hungry too? I could smash a pizza' },
+          them: { text: 'Top!! Anche tu hai fame? Io mi mangerei una pizza intera', gloss: 'Awesome!! Are you hungry too? I could eat a whole pizza' },
           cue: '“I am hungry” = avere fame (io)',
           answer: 'ho',
-          reply: '{FORM} fameaaa!!! 🍕 Andiamo?',
-          replyGloss: 'I am so hungry!!! Shall we go?',
+          reply: '{FORM} fameeee!!! 🍕 Pizza prima di studiare?',
+          replyGloss: 'I’m sooo hungry!!! Pizza before studying?',
           verb: 'avere', subject: 'io',
           distractors: ['sono', 'hai', 'è'],
           idiomNote: 'avere fame = to be hungry'
         },
         {
-          them: { text: 'Dai. Compagni di squadra: noi ___ sete dopo l’allenamento ahah', gloss: 'Come on. Teammates: we ___ thirsty after practice lol' },
+          them: { text: 'Ahah. Dopo l’allenamento noi ___ sempre una sete pazzesca', gloss: 'Haha. After practice we ___ always super thirsty' },
           cue: '“We are thirsty” = avere sete (noi)',
           answer: 'abbiamo',
-          reply: 'Noi {FORM} sete dopo il calcio 💧',
-          replyGloss: 'We are thirsty after soccer',
+          reply: 'Vero, noi {FORM} sempre sete dopo il calcio 💧',
+          replyGloss: 'True, we are always thirsty after soccer',
           verb: 'avere', subject: 'noi',
           distractors: ['avete', 'siamo', 'hanno'],
           idiomNote: 'avere sete = to be thirsty'
         },
         {
-          them: { text: 'Frate sei di nuovo in ritardo? Il coach dice che SEI sempre in ritardo 😂', gloss: 'Bro you’re late again? Coach says YOU are always late' },
-          cue: 'Push back: “You are wrong!” → <em>essere</em> (tu)',
+          them: { text: 'Ehi, oggi di nuovo in ritardo? Il coach dice che arrivi sempre tardi 😂', gloss: 'Hey, late again today? Coach says you always show up late' },
+          cue: 'Push back: “Are you serious?!” → <em>essere</em> (tu)',
           answer: 'sei',
-          reply: 'Non {FORM} giusto!! Solo ieri… ok forse 🙈',
-          replyGloss: 'You are not right!! Only yesterday… ok maybe',
+          reply: 'Ma tu {FORM} serio?! Solo ieri… ok, forse 🙈',
+          replyGloss: 'Are you serious?! Only yesterday… ok, maybe',
           verb: 'essere', subject: 'tu',
           distractors: ['sono', 'hai', 'è']
         },
         {
-          them: { text: 'Ahah va bene. Noi siamo al campo tra 20. Ci sei?', gloss: 'Haha fine. We are at the field in 20. You in?' },
-          cue: '“We are ready” → <em>essere</em> (noi)',
+          them: { text: 'Ahah va bene. Ci vediamo al campo tra 20 minuti. Ci sei?', gloss: 'Haha fine. See you at the field in 20 minutes. You in?' },
+          cue: '“Leo and I are ready” → <em>essere</em> (noi)',
           answer: 'siamo',
-          reply: 'Sì!! Noi {FORM} pronti 💪',
-          replyGloss: 'Yes!! We are ready',
+          reply: 'Sì!! Io e Leo {FORM} pronti 💪',
+          replyGloss: 'Yes!! Leo and I are ready',
           verb: 'essere', subject: 'noi',
           distractors: ['siete', 'abbiamo', 'sono']
         }
@@ -1668,45 +1672,45 @@ const THREADS = [
       modeLabel: 'LOCK IN',
       unlockAt: 0.70,
       unlockFrom: 'marco',
-      preview: 'Ciao!! Tu ___ stanca?',
+      preview: 'Ciao!! Tu ___ a pezzi?',
       time: '2m',
       instr: 'Giulia writes in Italian with a blank. Tap the conjugation chip to fill it.',
       items: [
         {
-          them: { text: 'Ciao!! Tu ___ stanca dopo il test? 😭', gloss: 'Hi!! Are you tired after the test?' },
+          them: { text: 'Ciao!! Tu ___ a pezzi dopo il test? 😭', gloss: 'Hi!! Are you wiped out after the test?' },
           cue: 'Fill blank: tu + essere',
           answer: 'sei',
-          reply: 'Sì… {FORM} morta 💀 Ma tu?',
-          replyGloss: 'Yes… I am dead. And you?',
+          reply: 'Sì… ho zero energia 💀 E tu? Anche tu {FORM} a pezzi?',
+          replyGloss: 'Yes… I have zero energy. And you? Are you wiped out too?',
           verb: 'essere', subject: 'tu',
           distractors: ['sono', 'hai', 'è']
         },
         {
-          them: { text: 'Io ___ sonno da tre giorni ahah', gloss: 'I have been sleepy for three days (idiom)' },
+          them: { text: 'Io ___ sonno da tre giorni ahah', gloss: 'I’ve been sleepy for three days lol' },
           cue: 'avere sonno (io) — “I am sleepy”',
           answer: 'ho',
           reply: 'Anch’io {FORM} sonno 😴 Andiamo a prendere un caffè?',
-          replyGloss: 'Me too, I am sleepy. Coffee run?',
+          replyGloss: 'I’m sleepy too. Coffee run?',
           verb: 'avere', subject: 'io',
           distractors: ['sono', 'hai', 'è'],
           idiomNote: 'avere sonno = to be sleepy'
         },
         {
-          them: { text: 'I miei genitori ___ freddo in casa. Mettono il condizionatore a palla 🥶', gloss: 'My parents are cold at home. They blast the AC' },
+          them: { text: 'I miei genitori ___ sempre freddo. Il riscaldamento è sempre a palla 🥵', gloss: 'My parents are always cold. The heat is always blasting' },
           cue: 'loro + avere freddo',
           answer: 'hanno',
-          reply: 'Certo, loro {FORM} freddo — casa ghiaccio',
-          replyGloss: 'Of course, they are cold — ice house',
+          reply: 'Ahah, loro {FORM} freddo e tu muori di caldo 😂',
+          replyGloss: 'Haha, they’re cold and you’re dying of heat',
           verb: 'avere', subject: 'loro',
           distractors: ['sono', 'abbiamo', 'avete'],
           idiomNote: 'avere freddo = to be cold'
         },
         {
-          them: { text: 'Weekend: voi ___ liberi sabato?', gloss: 'Weekend: are you (plural) free Saturday?' },
+          them: { text: 'Weekend: voi ___ liberi sabato?', gloss: 'Weekend: are you guys free Saturday?' },
           cue: 'voi + essere',
           answer: 'siete',
-          reply: 'Sì, noi siamo! Voi {FORM}… aspetta, sì ✨',
-          replyGloss: 'Yes we are! You are… wait, yes',
+          reply: 'Sì, siamo liberi! E voi {FORM} liberi anche domenica? ✨',
+          replyGloss: 'Yes, we’re free! And are you guys free Sunday too?',
           verb: 'essere', subject: 'voi',
           distractors: ['siamo', 'avete', 'sono']
         },
@@ -1720,11 +1724,11 @@ const THREADS = [
           distractors: ['ha', 'sono', 'sei']
         },
         {
-          them: { text: 'Noi ___ una prova di storia lunedì 📚', gloss: 'We have a history quiz Monday' },
+          them: { text: 'Noi ___ una verifica di storia lunedì 📚', gloss: 'We have a history test Monday' },
           cue: 'noi + avere',
           answer: 'abbiamo',
-          reply: 'Ah sì, {FORM} una prova. Studiamo insieme?',
-          replyGloss: 'Ugh yes, we have a quiz. Study together?',
+          reply: 'Ah sì, {FORM} una verifica. Studiamo insieme?',
+          replyGloss: 'Oh right, we have a test. Study together?',
           verb: 'avere', subject: 'noi',
           distractors: ['siamo', 'avete', 'hanno']
         },
@@ -1732,27 +1736,28 @@ const THREADS = [
           them: { text: 'Perfetto. Tu ___ sete? Io sì 🧋', gloss: 'Perfect. Are you thirsty? I am' },
           cue: 'tu + avere sete',
           answer: 'hai',
-          reply: 'Se tu {FORM} sete, andiamo a prendere qualcosa!',
-          replyGloss: 'If you are thirsty, let’s go get something!',
+          reply: 'Sì! Se anche tu {FORM} sete, andiamo insieme a prendere qualcosa!',
+          replyGloss: 'Yes! If you’re thirsty too, let’s go get something together!',
           verb: 'avere', subject: 'tu',
           distractors: ['ho', 'sei', 'ha'],
-          idiomNote: 'avere sete'
+          idiomNote: 'avere sete = to be thirsty'
         },
         {
-          them: { text: 'Mia mamma ___ sempre ragione… secondo lei 😂', gloss: 'My mom is always right… according to her (ha ragione = avere)' },
-          cue: 'lei + avere (she has)',
+          them: { text: 'Mia mamma ___ sempre ragione… secondo lei 😂', gloss: 'My mom is always right… according to her' },
+          cue: 'lei + avere ragione',
           answer: 'ha',
-          reply: 'Ahah lei {FORM} sempre ragione 🤷‍♀️',
-          replyGloss: 'Haha she is always right (lit. has reason)',
+          reply: 'Ahah lei {FORM} sempre ragione 🤷',
+          replyGloss: 'Haha she’s always right (lit. “has reason”)',
           verb: 'avere', subject: 'lei',
-          distractors: ['è', 'ho', 'hai']
+          distractors: ['è', 'ho', 'hai'],
+          idiomNote: 'avere ragione = to be right'
         },
         {
-          them: { text: 'Ultima: loro ___ i biglietti per il concerto?!', gloss: 'Last one: do they have the concert tickets?!' },
-          cue: 'loro + avere',
+          them: { text: 'Ultima: Marco e Leo ___ i biglietti per il concerto?!', gloss: 'Last one: do Marco and Leo have the concert tickets?!' },
+          cue: 'loro (Marco e Leo) + avere',
           answer: 'hanno',
-          reply: 'Speriamo di sì — {FORM} i biglietti?? 🎫',
-          replyGloss: 'Hopefully yes — they have the tickets??',
+          reply: 'Speriamo! Se non {FORM} i biglietti, niente concerto 😭',
+          replyGloss: 'Hope so! If they don’t have the tickets, no concert',
           verb: 'avere', subject: 'loro',
           distractors: ['sono', 'abbiamo', 'avete']
         }
@@ -1767,16 +1772,16 @@ const THREADS = [
       modeLabel: 'TYPE IT',
       unlockAt: 0.70,
       unlockFrom: 'giulia',
-      preview: 'Ehi bro costruisci il verbo 🔤',
+      preview: 'Ehi, costruisci il verbo 🔤',
       time: '5m',
       instr: 'Leo scrambles the letters. Tap tiles to build the exact form, then Send.',
       items: [
         {
-          them: { text: 'Ehi quiz lampo: io + essere = ???', gloss: 'Ok coach quiz: I + to be = ???' },
+          them: { text: 'Ehi, quiz lampo: io + essere = ???', gloss: 'Hey, lightning quiz: I + to be = ???' },
           cue: 'Build: io + essere',
           answer: 'sono',
-          reply: '{FORM} pronto, frate',
-          replyGloss: 'I am ready, bro',
+          reply: '{FORM} in forma oggi, frate 💪',
+          replyGloss: 'I’m in top form today, bro',
           verb: 'essere', subject: 'io',
           distractors: []
         },
@@ -1785,53 +1790,53 @@ const THREADS = [
           cue: 'Build: tu + avere',
           answer: 'hai',
           reply: 'Tu {FORM} ragione… forse',
-          replyGloss: 'You are right… maybe (hai ragione)',
+          replyGloss: 'You’re right… maybe (avere ragione)',
           verb: 'avere', subject: 'tu',
           distractors: []
         },
         {
-          them: { text: 'noi + essere. Siamo già in ritardo 🏃', gloss: 'we + to be. We are already late' },
+          them: { text: 'noi + essere. Muoviti, ___ già in ritardo 🏃', gloss: 'we + to be. Hurry, we ___ already late' },
           cue: 'Build: noi + essere',
           answer: 'siamo',
           reply: 'Noi {FORM} lentissimi ahah',
-          replyGloss: 'We are so slow lol',
+          replyGloss: 'We are sooo slow lol',
           verb: 'essere', subject: 'noi',
           distractors: []
         },
         {
-          them: { text: 'loro + avere fame dopo la palestra', gloss: 'they + to have hunger after the gym' },
+          them: { text: 'loro + avere fame dopo la palestra', gloss: 'they + to have hunger (= be hungry) after the gym' },
           cue: 'Build: loro + avere (fame)',
           answer: 'hanno',
-          reply: 'Loro {FORM} fame — pizza time',
+          reply: 'Loro {FORM} fame — pizza time 🍕',
           replyGloss: 'They are hungry — pizza time',
           verb: 'avere', subject: 'loro',
           distractors: [],
-          idiomNote: 'avere fame'
+          idiomNote: 'avere fame = to be hungry'
         },
         {
-          them: { text: 'lei + essere (she is) che legge', gloss: 'she + to be (she is) reading' },
+          them: { text: 'lei + essere: Giulia ___ in biblioteca', gloss: 'she + to be: Giulia ___ in the library' },
           cue: 'Build: lei + essere',
           answer: 'è',
-          reply: 'Lei {FORM} concentrata 📖',
-          replyGloss: 'She is focused',
+          reply: 'Sì, lei {FORM} super concentrata 📖',
+          replyGloss: 'Yes, she is super focused',
           verb: 'essere', subject: 'lei',
           distractors: []
         },
         {
-          them: { text: 'voi + avere — voi avete le chiavi?', gloss: 'you all + to have — do you guys have the keys?' },
+          them: { text: 'voi + avere: tu e Giulia ___ le chiavi della palestra? 🔑', gloss: 'you all + to have: do you and Giulia ___ the gym keys?' },
           cue: 'Build: voi + avere',
           answer: 'avete',
-          reply: 'Voi {FORM} le chiavi?? Non io',
-          replyGloss: 'Do you have the keys?? Not me',
+          reply: 'Sì, noi abbiamo le chiavi! Voi {FORM} il pallone?',
+          replyGloss: 'Yes, we have the keys! Do you guys have the ball?',
           verb: 'avere', subject: 'voi',
           distractors: []
         },
         {
-          them: { text: 'io + avere caldo in questa classe 🥵', gloss: 'I + to have heat in this classroom' },
+          them: { text: 'io + avere caldo in questa classe 🥵', gloss: 'I + to have heat (= be hot) in this classroom' },
           cue: 'Build: io + avere caldo',
           answer: 'ho',
-          reply: '{FORM} caldoooo aprite la finestra',
-          replyGloss: 'I am so hot open the window',
+          reply: '{FORM} caldoooo, aprite la finestra!',
+          replyGloss: 'I’m sooo hot, open the window!',
           verb: 'avere', subject: 'io',
           distractors: [],
           idiomNote: 'avere caldo = to be hot/warm'
@@ -1876,10 +1881,10 @@ const THREADS = [
           cue: 'io + avere fame',
           answer: 'ho',
           reply: 'Anch’io {FORM} fame — cornetto?',
-          replyGloss: 'Me too I am hungry — croissant?',
+          replyGloss: 'I’m hungry too — croissant?',
           verb: 'avere', subject: 'io',
           distractors: ['sono', 'hai', 'è'],
-          idiomNote: 'avere fame'
+          idiomNote: 'avere fame = to be hungry'
         },
         {
           them: { text: 'I nonni ___ a casa. Portiamo dolci?', gloss: 'The grandparents ___ at home. Shall we bring sweets?', from: 'Leo' },
@@ -1891,21 +1896,18 @@ const THREADS = [
           distractors: ['hanno', 'siamo', 'è']
         },
         {
-          them: { text: 'Cari, voi ___ sete? Ho portato acqua 💧', gloss: 'Dears, are you thirsty? I brought water', from: 'Nonna' },
+          them: { text: 'Cari, voi ___ sete? Ho portato l’acqua 💧', gloss: 'Dears, are you thirsty? I brought water', from: 'Nonna' },
           cue: 'voi + avere sete',
           answer: 'avete',
-          reply: 'Grazie Nonna!! Sì — {FORM} sete tutti 💙',
-          replyGloss: 'Thanks Grandma!! Yes — (you all) are thirsty',
+          reply: 'Grazie Nonna!! Sì, abbiamo tutti sete 💙',
+          replyGloss: 'Thanks Grandma!! Yes, we’re all thirsty',
           verb: 'avere', subject: 'voi',
-          // Student fills blank in Nonna's message: voi ___ sete → avete
-          // Reply affirms with noi abbiamo — wait, reply uses {FORM} which is avete — "Noi avete" is wrong!
-          // Keep reply using the answered form in a natural way for the blank fill pedagogy
           distractors: ['abbiamo', 'siete', 'hanno'],
-          idiomNote: 'avere sete'
+          idiomNote: 'avere sete = to be thirsty'
         },
         {
-          them: { text: 'Il treno ___ in ritardo di 10 min 😤', gloss: 'The train ___ 10 minutes late', from: 'Marco' },
-          cue: 'lui/it + essere (è)',
+          them: { text: 'Il treno ___ in ritardo di 10 minuti 😤', gloss: 'The train ___ 10 minutes late', from: 'Marco' },
+          cue: 'il treno (= it) + essere',
           answer: 'è',
           reply: 'Tipico… {FORM} sempre in ritardo',
           replyGloss: 'Typical… it is always late',
@@ -1913,11 +1915,11 @@ const THREADS = [
           distractors: ['ha', 'sono', 'sei']
         },
         {
-          them: { text: 'Stasera noi ___ un film a casa?', gloss: 'Tonight shall we have a movie at home?', from: 'Giulia' },
+          them: { text: 'Stasera noi ___ tempo per un film? 🍿', gloss: 'Tonight do we have time for a movie?', from: 'Giulia' },
           cue: 'noi + avere',
           answer: 'abbiamo',
-          reply: 'Sì!! {FORM} un film + popcorn',
-          replyGloss: 'Yes!! We have a movie + popcorn',
+          reply: 'Sì!! {FORM} tutta la sera — film + popcorn',
+          replyGloss: 'Yes!! We have all evening — movie + popcorn',
           verb: 'avere', subject: 'noi',
           distractors: ['siamo', 'avete', 'hanno']
         },
@@ -1925,40 +1927,37 @@ const THREADS = [
           them: { text: 'Tu ___ freddo? Prendi la mia felpa', gloss: 'Are you cold? Take my hoodie', from: 'Leo' },
           cue: 'tu + avere freddo',
           answer: 'hai',
-          reply: 'Un po’… se tu {FORM} freddo, tieni la felpa!',
-          replyGloss: 'A bit… if you are cold, keep the hoodie!',
+          reply: 'Grazie! Ma tu non {FORM} freddo senza felpa? 🥶',
+          replyGloss: 'Thanks! But aren’t you cold without the hoodie?',
           verb: 'avere', subject: 'tu',
           distractors: ['ho', 'sei', 'ha'],
-          idiomNote: 'avere freddo'
-          // Blank is Tu ___ freddo → hai; reply can be student saying they are cold with ho — but pedagogy uses same form. Keep consistent with lockin: answer fills blank = hai. Reply acknowledging: hmm "Sì hai freddo" is weird from student.
-          // Better reply: 'Un po’… tu {FORM} ragione, fa freddo' or student speaks as themselves: actually in group mode they pick the form for the blank in incoming. Reply confirms understanding.
-          // Use: reply about being cold as io: but answer must be hai for blank. Reply: 'Ok, se tu {FORM} freddo prendi questa'
+          idiomNote: 'avere freddo = to be cold'
         },
         {
           them: { text: 'Ragazzi, voi ___ meravigliosi. Divertitevi!', gloss: 'Kids, you are wonderful. Have fun!', from: 'Nonna' },
           cue: 'voi + essere',
           answer: 'siete',
-          reply: 'Grazie Nonna!! Voi {FORM} i migliori 💛',
-          replyGloss: 'Thanks Grandma!! You are the best',
+          reply: 'Grazie Nonna!! Voi nonni {FORM} i migliori 💛',
+          replyGloss: 'Thanks Grandma!! You grandparents are the best',
           verb: 'essere', subject: 'voi',
           distractors: ['siamo', 'avete', 'sono']
         },
         {
-          them: { text: 'Veloci: loro + avere sonno dopo il viaggio', gloss: 'Quick: they + to have sleepiness after the trip', from: 'Marco' },
+          them: { text: 'I miei cugini ___ sonno dopo il viaggio', gloss: 'My cousins ___ sleepy after the trip', from: 'Marco' },
           cue: 'loro + avere sonno',
           answer: 'hanno',
-          reply: 'Ovvio, {FORM} sonno 😴 Buonanotte chat',
-          replyGloss: 'Obviously, they are sleepy. Goodnight chat',
+          reply: 'Ovvio che {FORM} sonno! Poverini 😴',
+          replyGloss: 'Of course they’re sleepy! Poor things',
           verb: 'avere', subject: 'loro',
           distractors: ['sono', 'abbiamo', 'avete'],
-          idiomNote: 'avere sonno'
+          idiomNote: 'avere sonno = to be sleepy'
         },
         {
-          them: { text: 'Ultima: io + essere — sono felicissimaaa 💫', gloss: 'Last: I + to be — I am so happy', from: 'Giulia' },
-          cue: 'io + essere',
+          them: { text: 'Ultima: io ___ felicissima, che weekend!! 💫', gloss: 'Last one: I ___ super happy, what a weekend!!', from: 'Giulia' },
+          cue: 'io (Giulia) + essere',
           answer: 'sono',
-          reply: '{FORM} felicissima!! 💫 A dopo',
-          replyGloss: 'I am so happy!! See you later',
+          reply: 'Anch’io {FORM} felice!! A dopo 💫',
+          replyGloss: 'I’m happy too!! See you later',
           verb: 'essere', subject: 'io',
           distractors: ['ho', 'sei', 'è']
         }
@@ -1967,7 +1966,8 @@ const THREADS = [
   ];
 
 
-  const STORAGE_KEY = 'italianDMs_v2';
+  
+const STORAGE_KEY = 'italianDMs_v2';
   const STORAGE_LEGACY = 'italianDMs_v1';
   const AVATAR_COLORS = ['c0','c1','c2','c3','c4','c5'];
 
@@ -2016,6 +2016,11 @@ const THREADS = [
   let timerId = null;
   let typeModeActive = false;
   let filterMode = 'all';
+  let session = 0; // bumps whenever a chat is opened or closed
+  function later(fn, ms) {
+    const s = session;
+    return setTimeout(() => { if (s === session && currentThread) fn(); }, ms);
+  }
 
   function saveState() {
     state.muted = muted;
@@ -2283,14 +2288,16 @@ const THREADS = [
     const th = THREADS.find(t => t.id === id);
     if (!th || !isUnlocked(th)) return;
     currentThread = th;
+    session++;
     const st = threadStats(th.id);
     // Resume if partial; replay from start if completed (keep completed so unlocks stay)
-    if (st.completed) {
+    if (st.completed || (st.nextIndex || 0) >= th.items.length) {
+      // Finished before (passed or not): start a fresh attempt. A pass keeps
+      // st.completed = true so later chats stay unlocked.
       itemIndex = 0;
       st.nextIndex = 0;
       st.correct = 0;
       st.tried = 0;
-      // st.completed stays true so later chats remain unlocked
       state.progress[th.id] = st;
       saveState();
     } else {
@@ -2325,7 +2332,7 @@ const THREADS = [
     renderProg();
     showView('viewThread');
     $('timerBar').style.display = th.timed ? 'block' : 'none';
-    setTimeout(() => advanceItem(), 400);
+    later(() => advanceItem(), 400);
   }
 
   function clockLabel() {
@@ -2439,7 +2446,7 @@ const THREADS = [
     const item = currentThread.items[itemIndex];
     renderProg();
     const typing = showTyping();
-    setTimeout(() => {
+    later(() => {
       if (typing.parentNode) typing.parentNode.removeChild(typing);
       addBubble('them', formatThemText(item), {
         gloss: item.them.gloss || null,
@@ -2451,9 +2458,8 @@ const THREADS = [
       if (level === 'more') {
         cue += ' <span class="idiom">· tip: ' + item.subject + ' + ' + item.verb + ' (check Chart)</span>';
       } else if (level === 'challenge') {
-        // shorter cue — verb family only
-        cue = '<em>' + item.verb + '</em> (' + item.subject + ')';
-        if (item.idiomNote) cue += ' <span class="idiom">(' + item.idiomNote + ')</span>';
+        // Challenge: no verb name, no idiom hint — the student decides essere vs avere
+        cue = 'Subject: <em>' + item.subject + '</em> · essere or avere?';
       }
       promptLine.innerHTML = cue;
       awaitingAnswer = true;
@@ -2490,7 +2496,7 @@ const THREADS = [
 
   function uniqueChips(answer, distractors) {
     const level = state.helpLevel || 'mid';
-    const target = level === 'more' ? 2 : (level === 'challenge' ? 3 : 4);
+    const target = level === 'more' ? 2 : 4;
     const set = new Set();
     set.add(answer);
     const pool = shuffle((distractors || []).slice());
@@ -2590,6 +2596,13 @@ const THREADS = [
     return (s || '').trim().toLowerCase().normalize('NFC');
   }
 
+  /* Put the form into the reply and capitalise it when it starts a sentence
+     ("{FORM} fame" -> "Ho fame", "Sì!! {FORM} tutta la sera" -> "Sì!! Abbiamo …"). */
+  function fillReply(template, form) {
+    return template.replace(/(^|[.!?]\s+)\{FORM\}|\{FORM\}/, (m, lead) =>
+      lead !== undefined ? lead + form.charAt(0).toUpperCase() + form.slice(1) : form);
+  }
+
   function handleAnswer(guess, chipEl) {
     if (!awaitingAnswer || !currentThread) return;
     awaitingAnswer = false;
@@ -2609,9 +2622,9 @@ const THREADS = [
       st.correct = (st.correct || 0) + 1;
       sfxOk();
       if (chipEl) chipEl.classList.add('correct-flash');
-      const replyText = item.reply.replace('{FORM}', item.answer);
+      const replyText = fillReply(item.reply, item.answer);
       addBubble('me', replyText, { gloss: item.replyGloss || null, cls: 'correct', ticks: 'Delivered' });
-      setTimeout(() => {
+      later(() => {
         const statuses = messagesEl.querySelectorAll('.msg.me .msg-status');
         const last = statuses[statuses.length - 1];
         if (last && last.textContent === 'Delivered') last.textContent = 'Seen';
@@ -2624,11 +2637,11 @@ const THREADS = [
       const wrongShow = guess || '…';
       addBubble('me', wrongShow, { cls: 'wrong', ticks: 'Delivered' });
       const tease = gentleTease(item, wrongShow);
-      setTimeout(() => {
+      later(() => {
         addBubble('them', tease.text, { from: tease.from, gloss: tease.gloss });
         addSys('Right form: ' + item.answer + ' (' + item.subject + ' + ' + item.verb + ')', 'tip');
-        setTimeout(() => {
-          const replyText = item.reply.replace('{FORM}', item.answer);
+        later(() => {
+          const replyText = fillReply(item.reply, item.answer);
           addBubble('me', replyText, { gloss: item.replyGloss || null, ticks: 'Seen' });
           afterItem();
         }, 700);
@@ -2644,7 +2657,7 @@ const THREADS = [
     state.progress[currentThread.id] = st;
     saveState();
     updateHomeStats();
-    setTimeout(afterItem, 900);
+    later(afterItem, 900);
   }
 
   function gentleTease(item, wrong) {
@@ -2666,7 +2679,7 @@ const THREADS = [
     } else {
       lines = [
         { text: 'Quasi!! Ma è “' + item.answer + '”', gloss: 'almost!! but it’s…' },
-        { text: 'Ehii no — ' + item.subject + ' vuole “' + item.answer + '”', gloss: 'Hey no — ' + item.subject + ' takes “' + item.answer + '”' },
+        { text: 'Ehii no — con “' + item.subject + '” ci vuole “' + item.answer + '”', gloss: 'Hey no — with “' + item.subject + '” you need “' + item.answer + '”' },
         { text: 'Vicino! Ricorda: ' + item.verb + ' → “' + item.answer + '” con ' + item.subject, gloss: 'Close! Remember: ' + item.verb + ' → “' + item.answer + '” with ' + item.subject },
         { text: 'Ahah aspetta — non “' + wrong + '”. È “' + item.answer + '”', gloss: 'Haha wait — not “' + wrong + '”. It’s “' + item.answer + '”' }
       ];
@@ -2683,9 +2696,9 @@ const THREADS = [
     state.progress[currentThread.id] = st;
     saveState();
     if (itemIndex >= currentThread.items.length) {
-      setTimeout(finishThread, 500);
+      later(finishThread, 500);
     } else {
-      setTimeout(advanceItem, 600);
+      later(advanceItem, 600);
     }
   }
 
@@ -2701,17 +2714,22 @@ const THREADS = [
 
     addSys('Chat complete — ' + pct + '% this thread', pct >= Math.round(unlockThreshold()*100) ? 'ok' : 'tip');
     if (pct >= Math.round(unlockThreshold()*100)) {
-      addBubble('them', 'Dai che stai andando alla grande — ci vediamo nella prossima chat', {
+      const next = THREADS.find(t => t.unlockFrom === currentThread.id);
+      addBubble('them', next
+        ? 'Dai che stai andando alla grande — ci vediamo nella prossima chat!'
+        : 'Grande! Hai finito tutte le chat 🎉', {
         from: currentThread.name === 'Weekend Crew' ? 'Giulia' : currentThread.name
       });
-      const next = THREADS.find(t => t.unlockFrom === currentThread.id);
       if (next && isUnlocked(next)) {
         showToast('Unlocked: ' + next.name);
       } else if (!next) {
         showToast('All threads clear. Streak: ' + state.streak);
       }
     } else {
-      addBubble('them', 'Bel tentativo — arriva al ' + Math.round(unlockThreshold()*100) + '% per sbloccare la prossima chat. Puoi riprovare quando vuoi', {
+      const nextT = THREADS.find(t => t.unlockFrom === currentThread.id);
+      addBubble('them', nextT
+        ? 'Bel tentativo! Arriva al ' + Math.round(unlockThreshold()*100) + '% per sbloccare la prossima chat. Puoi riprovare quando vuoi 💪'
+        : 'Bel tentativo! Riprova quando vuoi per arrivare al ' + Math.round(unlockThreshold()*100) + '% 💪', {
         from: currentThread.name === 'Weekend Crew' ? 'Leo' : currentThread.name
       });
     }
@@ -2728,7 +2746,7 @@ const THREADS = [
     fill.style.width = '0%';
     timerId = setTimeout(() => {
       if (awaitingAnswer) {
-        addSys('Time’s soft-up — sending a nudge…', 'tip');
+        addSys('Time’s up — here’s the answer.', 'tip');
         handleAnswer('', null);
       }
     }, ms);
@@ -2829,6 +2847,7 @@ const THREADS = [
   }
 
   $('btnBack').addEventListener('click', () => {
+    session++;
     clearTimer();
     awaitingAnswer = false;
     currentThread = null;
