@@ -1,11 +1,12 @@
 /* Italian DMs — offline app-shell service worker (school-safe, no CDN) */
-const CACHE = 'italian-dms-v7';
+const CACHE = 'italian-dms-v8';
 const SHELL = [
   './',
   './index.html',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
+  './icons/icon-maskable-512.png',
   './icons/apple-touch-icon.png'
 ];
 

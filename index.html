@@ -1323,7 +1323,7 @@ button:focus-visible, input:focus-visible, .chip:focus-visible, .tile:focus-visi
 
     <div class="view active" id="viewSplash">
       <div class="splash-icon" aria-hidden="true">
-        <svg viewBox="0 0 48 48" fill="none"><path d="M8 14c0-3.3 2.7-6 6-6h20c3.3 0 6 2.7 6 6v14c0 3.3-2.7 6-6 6H20l-8 8V14z" fill="#fff" opacity=".95"/><circle cx="18" cy="21" r="2.2" fill="#007AFF"/><circle cx="24" cy="21" r="2.2" fill="#007AFF"/><circle cx="30" cy="21" r="2.2" fill="#007AFF"/></svg>
+        <svg viewBox="0 0 48 48" fill="none"><path d="M14 8h20c3.3 0 6 2.7 6 6v14c0 3.3-2.7 6-6 6H20l-8 8v-8.6C9.7 32.6 8 30.5 8 28V14c0-3.3 2.7-6 6-6z" fill="#fff" opacity=".95"/><circle cx="18" cy="21" r="2.2" fill="#007AFF"/><circle cx="24" cy="21" r="2.2" fill="#007AFF"/><circle cx="30" cy="21" r="2.2" fill="#007AFF"/></svg>
       </div>
       <div class="splash-name">Italian DMs</div>
       <div class="splash-sub">essere &amp; avere</div>
@@ -1953,13 +1953,20 @@ const THREADS = [
           idiomNote: 'avere sonno = to be sleepy'
         },
         {
-          them: { text: 'Ultima: io ___ felicissima, che weekend!! 💫', gloss: 'Last one: I ___ super happy, what a weekend!!', from: 'Giulia' },
-          cue: 'io (Giulia) + essere',
-          answer: 'sono',
-          reply: 'Anch’io {FORM} felice!! A dopo 💫',
-          replyGloss: 'I’m happy too!! See you later',
-          verb: 'essere', subject: 'io',
-          distractors: ['ho', 'sei', 'è']
+          them: { text: 'Ultima cosa: mio fratello ___ quindici anni e vuole venire al mare con noi 😅', gloss: 'One last thing: my brother ___ fifteen and wants to come to the beach with us', from: 'Leo' },
+          cue: 'lui (Leo’s brother) + avere',
+          answer: 'ha',
+          reply: 'Certo che può venire! Lui {FORM} quindici anni, non cinque 😂',
+          replyGloss: 'Of course he can come! He’s fifteen, not five',
+          verb: 'avere', subject: 'lui',
+          distractors: ['è', 'ho', 'hanno'],
+          idiomNote: 'avere … anni = to be … years old',
+          why: {
+            'è': '“è” is essere (he is). For age, Italian uses avere: “Lui ha quindici anni” = “He is fifteen.”',
+            'ho': '“ho” goes with io (I have). Mio fratello = lui, so it’s “ha.”',
+            'hanno': '“hanno” goes with loro (they have). Mio fratello is one person (lui), so it’s “ha.”',
+            _: 'For age, Italian uses avere (avere … anni). Mio fratello = lui, so it’s “ha.”'
+          }
         }
       ]
     }
@@ -2640,6 +2647,10 @@ const STORAGE_KEY = 'italianDMs_v2';
       later(() => {
         addBubble('them', tease.text, { from: tease.from, gloss: tease.gloss });
         addSys('Right form: ' + item.answer + ' (' + item.subject + ' + ' + item.verb + ')', 'tip');
+        if (item.why) {
+          const why = item.why[normalize(guess)] || item.why._;
+          if (why) addSys('Why: ' + why, 'tip');
+        }
         later(() => {
           const replyText = fillReply(item.reply, item.answer);
           addBubble('me', replyText, { gloss: item.replyGloss || null, ticks: 'Seen' });
@@ -2736,28 +2747,70 @@ const STORAGE_KEY = 'italianDMs_v2';
     promptLine.innerHTML = '‹ Messages to go back · chart in the header';
   }
 
-  function startTimer(ms) {
-    clearTimer();
+  /* Group-chat countdown. It pauses while the Chart or Settings sheet is open
+     and resumes with the time that was left. Only one countdown can exist,
+     and it is tied to the chat session that started it. */
+  let timerTotal = 0;      // full time for this question (ms)
+  let timerLeft = 0;       // time left when paused / not yet running (ms)
+  let timerEndsAt = 0;     // Date.now() deadline while running
+  let timerArmed = false;  // a countdown belongs to the current question
+  function overlayOpen() {
+    return $('chartModal').classList.contains('open') || $('settingsModal').classList.contains('open');
+  }
+  function drawTimer(fraction, runMs) {
     const fill = $('timerFill');
+    if (!fill) return;
     fill.style.transition = 'none';
-    fill.style.width = '100%';
-    void fill.offsetWidth;
-    fill.style.transition = 'width ' + ms + 'ms linear';
-    fill.style.width = '0%';
+    fill.style.width = (Math.max(0, Math.min(1, fraction)) * 100) + '%';
+    if (runMs) {
+      void fill.offsetWidth;
+      fill.style.transition = 'width ' + runMs + 'ms linear';
+      fill.style.width = '0%';
+    }
+  }
+  function runTimer() {
+    if (timerId) { clearTimeout(timerId); timerId = null; }
+    const s = session;
+    const ms = Math.max(0, timerLeft);
+    timerEndsAt = Date.now() + ms;
+    drawTimer(timerTotal ? ms / timerTotal : 1, ms);
     timerId = setTimeout(() => {
+      timerId = null;
+      if (s !== session || !currentThread) return;
+      timerArmed = false;
+      timerLeft = 0;
       if (awaitingAnswer) {
         addSys('Time’s up — here’s the answer.', 'tip');
         handleAnswer('', null);
       }
     }, ms);
   }
+  function startTimer(ms) {
+    clearTimer();
+    timerTotal = ms;
+    timerLeft = ms;
+    timerArmed = true;
+    if (overlayOpen()) drawTimer(1, 0); // wait until the sheet is closed
+    else runTimer();
+  }
+  function pauseTimer() {
+    if (!timerArmed || !timerId) return;
+    clearTimeout(timerId);
+    timerId = null;
+    timerLeft = Math.max(0, timerEndsAt - Date.now());
+    drawTimer(timerTotal ? timerLeft / timerTotal : 1, 0);
+  }
+  function resumeTimer() {
+    if (!timerArmed || timerId || overlayOpen()) return;
+    if (!currentThread || !currentThread.timed || !awaitingAnswer) return;
+    runTimer();
+  }
   function clearTimer() {
     if (timerId) { clearTimeout(timerId); timerId = null; }
-    const fill = $('timerFill');
-    if (fill) {
-      fill.style.transition = 'none';
-      fill.style.width = '100%';
-    }
+    timerArmed = false;
+    timerLeft = 0;
+    timerTotal = 0;
+    drawTimer(1, 0);
   }
 
   function resizeImageToDataURL(file, maxSize, cb) {
@@ -2793,6 +2846,7 @@ const STORAGE_KEY = 'italianDMs_v2';
     updateProfileUI();
     applyTheme();
     $('settingsModal').classList.add('open');
+    pauseTimer();
     setTimeout(() => $('nameInput').focus(), 200);
   }
   function closeSettings() {
@@ -2801,6 +2855,7 @@ const STORAGE_KEY = 'italianDMs_v2';
     saveState();
     updateProfileUI();
     $('settingsModal').classList.remove('open');
+    resumeTimer();
   }
 
   function buildAvatarGrid() {
@@ -2855,8 +2910,8 @@ const STORAGE_KEY = 'italianDMs_v2';
     showView('viewList');
   });
 
-  function openChart() { $('chartModal').classList.add('open'); }
-  function closeChart() { $('chartModal').classList.remove('open'); }
+  function openChart() { $('chartModal').classList.add('open'); pauseTimer(); }
+  function closeChart() { $('chartModal').classList.remove('open'); resumeTimer(); }
   $('btnChartHome').addEventListener('click', openChart);
   $('btnChartThread').addEventListener('click', openChart);
   $('btnCloseChart').addEventListener('click', closeChart);
