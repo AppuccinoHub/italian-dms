@@ -1,5 +1,5 @@
 /* Italian DMs — offline app-shell service worker (school-safe, no CDN) */
-const CACHE = 'italian-dms-v8';
+const CACHE = 'italian-dms-v9';
 const SHELL = [
   './',
   './index.html',

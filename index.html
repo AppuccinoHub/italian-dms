@@ -1627,8 +1627,8 @@ const THREADS = [
           them: { text: 'Top!! Anche tu hai fame? Io mi mangerei una pizza intera', gloss: 'Awesome!! Are you hungry too? I could eat a whole pizza' },
           cue: '“I am hungry” = avere fame (io)',
           answer: 'ho',
-          reply: '{FORM} fameeee!!! 🍕 Pizza prima di studiare?',
-          replyGloss: 'I’m sooo hungry!!! Pizza before studying?',
+          reply: 'Sì, anch’io {FORM} fame!!! 🍕 Pizza prima di studiare?',
+          replyGloss: 'Yes, I’m hungry too!!! Pizza before studying?',
           verb: 'avere', subject: 'io',
           distractors: ['sono', 'hai', 'è'],
           idiomNote: 'avere fame = to be hungry'
@@ -1727,7 +1727,7 @@ const THREADS = [
           them: { text: 'Noi ___ una verifica di storia lunedì 📚', gloss: 'We have a history test Monday' },
           cue: 'noi + avere',
           answer: 'abbiamo',
-          reply: 'Ah sì, {FORM} una verifica. Studiamo insieme?',
+          reply: 'Ah sì, noi {FORM} una verifica. Studiamo insieme?',
           replyGloss: 'Oh right, we have a test. Study together?',
           verb: 'avere', subject: 'noi',
           distractors: ['siamo', 'avete', 'hanno']
@@ -1756,7 +1756,7 @@ const THREADS = [
           them: { text: 'Ultima: Marco e Leo ___ i biglietti per il concerto?!', gloss: 'Last one: do Marco and Leo have the concert tickets?!' },
           cue: 'loro (Marco e Leo) + avere',
           answer: 'hanno',
-          reply: 'Speriamo! Se non {FORM} i biglietti, niente concerto 😭',
+          reply: 'Speriamo! Se loro non {FORM} i biglietti, niente concerto 😭',
           replyGloss: 'Hope so! If they don’t have the tickets, no concert',
           verb: 'avere', subject: 'loro',
           distractors: ['sono', 'abbiamo', 'avete']
@@ -1909,8 +1909,8 @@ const THREADS = [
           them: { text: 'Il treno ___ in ritardo di 10 minuti 😤', gloss: 'The train ___ 10 minutes late', from: 'Marco' },
           cue: 'il treno (= it) + essere',
           answer: 'è',
-          reply: 'Tipico… {FORM} sempre in ritardo',
-          replyGloss: 'Typical… it is always late',
+          reply: 'Tipico… quel treno {FORM} sempre in ritardo',
+          replyGloss: 'Typical… that train is always late',
           verb: 'essere', subject: 'lui',
           distractors: ['ha', 'sono', 'sei']
         },
@@ -1918,17 +1918,17 @@ const THREADS = [
           them: { text: 'Stasera noi ___ tempo per un film? 🍿', gloss: 'Tonight do we have time for a movie?', from: 'Giulia' },
           cue: 'noi + avere',
           answer: 'abbiamo',
-          reply: 'Sì!! {FORM} tutta la sera — film + popcorn',
+          reply: 'Sì!! Noi {FORM} tutta la sera — film + popcorn',
           replyGloss: 'Yes!! We have all evening — movie + popcorn',
           verb: 'avere', subject: 'noi',
           distractors: ['siamo', 'avete', 'hanno']
         },
         {
-          them: { text: 'Tu ___ freddo? Prendi la mia felpa', gloss: 'Are you cold? Take my hoodie', from: 'Leo' },
+          them: { text: 'Tu ___ un po’ di freddo? Prendi la mia felpa', gloss: 'Are you a bit cold? Take my hoodie', from: 'Leo' },
           cue: 'tu + avere freddo',
           answer: 'hai',
-          reply: 'Grazie! Ma tu non {FORM} freddo senza felpa? 🥶',
-          replyGloss: 'Thanks! But aren’t you cold without the hoodie?',
+          reply: 'Grazie! Ma tu non {FORM} un po’ di freddo senza felpa? 🥶',
+          replyGloss: 'Thanks! But aren’t you a bit cold without the hoodie?',
           verb: 'avere', subject: 'tu',
           distractors: ['ho', 'sei', 'ha'],
           idiomNote: 'avere freddo = to be cold'
@@ -1937,8 +1937,8 @@ const THREADS = [
           them: { text: 'Ragazzi, voi ___ meravigliosi. Divertitevi!', gloss: 'Kids, you are wonderful. Have fun!', from: 'Nonna' },
           cue: 'voi + essere',
           answer: 'siete',
-          reply: 'Grazie Nonna!! Voi nonni {FORM} i migliori 💛',
-          replyGloss: 'Thanks Grandma!! You grandparents are the best',
+          reply: 'Grazie Nonna!! Voi nonni {FORM} speciali 💛',
+          replyGloss: 'Thanks Grandma!! You grandparents are special',
           verb: 'essere', subject: 'voi',
           distractors: ['siamo', 'avete', 'sono']
         },
@@ -1946,7 +1946,7 @@ const THREADS = [
           them: { text: 'I miei cugini ___ sonno dopo il viaggio', gloss: 'My cousins ___ sleepy after the trip', from: 'Marco' },
           cue: 'loro + avere sonno',
           answer: 'hanno',
-          reply: 'Ovvio che {FORM} sonno! Poverini 😴',
+          reply: 'Ovvio che loro {FORM} sonno! Poverini 😴',
           replyGloss: 'Of course they’re sleepy! Poor things',
           verb: 'avere', subject: 'loro',
           distractors: ['sono', 'abbiamo', 'avete'],
@@ -2117,6 +2117,15 @@ const STORAGE_KEY = 'italianDMs_v2';
   const promptLine = $('promptLine');
 
   function showToast(msg) {
+    // Inside a chat, a floating toast would cover the header and messages
+    // (e.g. "All threads clear" after the last item), so show it as a chat line.
+    if (currentThread && $('viewThread').classList.contains('active')) {
+      addSys(msg, 'ok');
+      // The composer area changes size as the chat ends; scroll again once it
+      // has settled so the note is fully visible above the input bar.
+      setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 400);
+      return;
+    }
     const t = $('toast');
     t.textContent = msg;
     t.classList.add('show');
