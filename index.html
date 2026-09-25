@@ -2460,10 +2460,6 @@ const STORAGE_KEY = 'italianDMs_v2';
       } else if (level === 'challenge') {
         // Challenge: no verb name, no idiom hint — the student decides essere vs avere
         cue = 'Subject: <em>' + item.subject + '</em> · essere or avere?';
-      } else {
-        // Just right: keep the English meaning if the cue has one, but hide the verb so students choose essere vs avere
-        const eng = (item.cue.match(/“[^”]*”/) || [''])[0];
-        cue = (eng ? eng + ' · ' : '') + 'Subject: <em>' + item.subject + '</em> · essere or avere?';
       }
       promptLine.innerHTML = cue;
       awaitingAnswer = true;
